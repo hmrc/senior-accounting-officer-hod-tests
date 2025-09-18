@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.specs
+package uk.gov.hmrc.stubs.models
 
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.support.ApiTestSupport
+import play.api.libs.json.{Json, OFormat}
+import java.time.Instant
 
-trait BaseSpec extends AnyWordSpec with Matchers with ApiTestSupport {}
+final case class AccountingPeriod(startDate: Instant, endDate: Instant, dueDate: Instant)
+
+object AccountingPeriod {
+  implicit val format: OFormat[AccountingPeriod] = Json.format[AccountingPeriod]
+}
