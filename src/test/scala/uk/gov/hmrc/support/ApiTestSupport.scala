@@ -23,27 +23,28 @@ import play.api.libs.json.Json
 import scala.concurrent.Future
 
 trait ApiTestSupport extends ScalaFutures {
-
-  // Clean request DSL
+  
   object request {
+    private val baseUrl = "/senior-accounting-officer-hod/business-entity"
+
     def put(entity: BusinessEntity): Future[ApiResponse] =
       BusinessEntityApiStub.call(
         method = "PUT",
-        url = "/senior-accounting-officer-hod/business-entity",
+        url = baseUrl,
         body = Some(Json.toJson(entity))
       )
 
     def putWithNoBody(): Future[ApiResponse] =
       BusinessEntityApiStub.call(
         method = "PUT",
-        url = "/senior-accounting-officer-hod/business-entity",
+        url = baseUrl,
         body = None
       )
 
     def putWithInvalidContentType(entity: BusinessEntity): Future[ApiResponse] =
       BusinessEntityApiStub.call(
         method = "PUT",
-        url = "/senior-accounting-officer-hod/business-entity",
+        url = baseUrl,
         body = Some(Json.toJson(entity)),
         contentType = "text/plain"
       )
@@ -51,7 +52,7 @@ trait ApiTestSupport extends ScalaFutures {
     def get(entityId: String): Future[ApiResponse] =
       BusinessEntityApiStub.call(
         method = "GET",
-        url = s"/senior-accounting-officer-hod/business-entity/$entityId"
+        url = s"$baseUrl/$entityId"
       )
 
     def get(entityId: java.util.UUID): Future[ApiResponse] = get(entityId.toString)
