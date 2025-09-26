@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.hmrc.api.specs
 
-import org.scalatest.GivenWhenThen
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
-import play.api.libs.json.Json
-import uk.gov.hmrc.stubs.{BusinessEntityApiStub, TestDataFactory}
+import uk.gov.hmrc.stubs.TestDataFactory
 import uk.gov.hmrc.support.ApiTestSupport
-
 import java.util.UUID
 
-class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSupport with GivenWhenThen {
+class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSupport {
 
   "The business entity registration API" must {
 
@@ -54,7 +52,7 @@ class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSuppor
       }
 
       "require request body" in {
-        whenReady(request.putWithNoBody()) {response =>
+        whenReady(request.putWithNoBody()) { response =>
           response.body should include("Request body is required")
           response.statusCode shouldBe 400
         }
@@ -62,7 +60,7 @@ class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSuppor
 
       "require valid content type header" in {
         val businessEntity = TestDataFactory.validBusinessEntity()
-        whenReady(request.putWithInvalidContentType(businessEntity)) {response =>
+        whenReady(request.putWithInvalidContentType(businessEntity)) { response =>
           response.body should include("Content-Type must be application/json")
           response.statusCode shouldBe 400
         }
@@ -72,15 +70,9 @@ class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSuppor
     "when retrieving a registration" must {
 
       "return a business entity for a valid ID" in {
-        val validUUID = UUID.randomUUID().toString // Once we are able to add entities, update this code with a valid ID
-//
-//        val futureResponse = BusinessEntityApiStub.call(
-//          method = "GET",
-//          url = s"/business-entity/$validUUID"
-//        )
-
-        whenReady(request.get(validUUID)) {response =>
-          response.body should include(validUUID)
+        val validUUID = UUID.randomUUID() // Once we are able to add entities, update this code with a valid ID
+        whenReady(request.get(validUUID)) { response =>
+          response.body should include(validUUID.toString)
           response.body should include("Test Company Ltd")
           response.statusCode shouldBe 200
         }
@@ -88,11 +80,6 @@ class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSuppor
 
       "return 'not found' for missing entity" in {
         val nonExistentId = "00000000-0000-0000-0000-000000000000"
-//        val futureResponse = BusinessEntityApiStub.call(
-//          method = "GET",
-//          url = s"/business-entity/$nonExistentId"
-//        )
-
         whenReady(request.get(nonExistentId)) { response =>
           response.body should include("Business entity not found")
           response.statusCode shouldBe 404
@@ -100,30 +87,11 @@ class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSuppor
       }
 
       "reject invalid UUID format" in {
-        val invalidId = "not-a-uuid"
-
-//        val futureResponse = BusinessEntityApiStub.call(
-//          method = "GET",
-//          url = s"/business-entity/$invalidId"
-//        )
-
-        whenReady(request.get(invalidId)) {response =>
+        whenReady(request.get("not-a-uuid")) { response =>
           response.body should include("Invalid UUID format")
           response.statusCode shouldBe 400
         }
       }
     }
-
-//    "handle unknown routes" in {
-//      val futureResponse = BusinessEntityApiStub.call(
-//        method = "POST",
-//        url = "/unknown-route"
-//      )
-//
-//      whenReady(futureResponse) {response =>
-//        response.body should include("Route not found")
-//        response.statusCode shouldBe 404
-//      }
-//    }
   }
 }
