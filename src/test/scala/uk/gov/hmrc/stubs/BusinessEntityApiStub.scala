@@ -18,8 +18,10 @@ package uk.gov.hmrc.stubs
 
 import uk.gov.hmrc.stubs.models.BusinessEntity
 import play.api.libs.json.{JsValue, Json}
+
 import scala.concurrent.Future
 import java.util.UUID
+import scala.util.Try
 
 /** Pure stub implementation for business entity registration API.
   *
@@ -56,7 +58,6 @@ object BusinessEntityApiStub {
       case None => badRequest("Request body is required")
 
       case Some(body) =>
-        // Parse business entity from JSON body
         body
           .validate[BusinessEntity]
           .fold(
@@ -82,20 +83,20 @@ object BusinessEntityApiStub {
     }
 
   private def validateAndCallGetRequest(id: String): Future[ApiResponse] = {
-    // Validate UUID format
-    try
-      UUID.fromString(id)
-    catch {
-      case _: IllegalArgumentException => return badRequest("Invalid UUID format")
+    if (!isValidUUID(id)) {
+      return badRequest("Invalid UUID format")
     }
+    processEntityRetrieval(id)
+  }
 
-    // Handle different scenarios based on ID
+  private def processEntityRetrieval(id: String): Future[ApiResponse] = {
+    val uuid = UUID.fromString(id)
     id match {
       case "00000000-0000-0000-0000-000000000000" => // Non-existent ID
         Future.successful(ApiResponse(404, errorMessage("Business entity not found")))
 
       case _ =>
-        val stubEntity = TestDataFactory.validBusinessEntity().copy(id = UUID.fromString(id))
+        val stubEntity = TestDataFactory.validBusinessEntity().copy(id = uuid)
         Future.successful(ApiResponse(200, Json.toJson(stubEntity).toString()))
     }
   }
@@ -104,4 +105,7 @@ object BusinessEntityApiStub {
     Future.successful(ApiResponse(400, errorMessage(message)))
 
   private def errorMessage(message: String): String = s"""{"error":"$message"}"""
+
+  private def isValidUUID(id: String): Boolean = Try(UUID.fromString(id)).isSuccess
+
 }

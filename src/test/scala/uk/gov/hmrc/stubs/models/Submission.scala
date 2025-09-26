@@ -19,7 +19,6 @@ package uk.gov.hmrc.stubs.models
 import java.time.Instant
 import play.api.libs.json.*
 import uk.gov.hmrc.stubs.enums.Progress
-import uk.gov.hmrc.stubs.models.AccountingPeriod
 
 import java.time.temporal.ChronoUnit
 
