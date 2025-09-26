@@ -17,13 +17,14 @@
 package uk.gov.hmrc.stubs.models
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.stubs.enums.ContactTypeOrder
 
 final case class Contact(
   name: String,
   role: String,
   email: String,
   phone: String,
-  order: String
+  order: ContactTypeOrder
 )
 
 object Contact {

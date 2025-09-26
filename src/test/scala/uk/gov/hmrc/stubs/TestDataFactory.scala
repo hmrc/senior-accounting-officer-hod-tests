@@ -16,7 +16,9 @@
 
 package uk.gov.hmrc.stubs
 
+import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
 import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Contact, Submission}
+
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -67,7 +69,7 @@ object TestDataFactory {
     role = role,
     email = emailFor(name),
     phone = Defaults.contactPhone,
-    order = "1"
+    order = First
   )
 
   def validSubmission(): Submission = Submission(

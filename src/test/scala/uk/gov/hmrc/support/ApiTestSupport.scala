@@ -23,7 +23,7 @@ import play.api.libs.json.Json
 import scala.concurrent.Future
 
 trait ApiTestSupport extends ScalaFutures {
-  
+
   object request {
     private val baseUrl = "/senior-accounting-officer-hod/business-entity"
 

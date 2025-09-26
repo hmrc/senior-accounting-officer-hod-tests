@@ -14,13 +14,27 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.stubs.models
+package uk.gov.hmrc.stubs.enums
 
-import play.api.libs.json.{Json, OFormat}
-import java.time.Instant
+import play.api.libs.json.*
 
-final case class AccountingPeriod(startDate: Instant, endDate: Instant, dueDate: Instant)
+import scala.util.Try
 
-object AccountingPeriod {
-  implicit val format: OFormat[AccountingPeriod] = Json.format[AccountingPeriod]
+enum Progress {
+  case Subscribed, Assigned, Notified, Certified
+}
+
+object Progress {
+  given Reads[Progress] = Reads {
+    case JsString(value) =>
+      Try(Progress.valueOf(value))
+        .map(JsSuccess(_))
+        .getOrElse(JsError(s"Unknown progress value: $value"))
+
+    case _ => JsError("String value expected for progress")
+  }
+
+  given Writes[Progress] = Writes { progress =>
+    JsString(progress.toString)
+  }
 }
