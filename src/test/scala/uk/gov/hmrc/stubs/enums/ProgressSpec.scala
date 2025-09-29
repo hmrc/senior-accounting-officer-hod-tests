@@ -37,10 +37,10 @@ class ProgressSpec extends AnyWordSpec with Matchers {
     "reject any invalid string values" in {
       val invalidStringValues = List("JarJar", "SUBSCRIBED", "invalid", "", "Subscribe")
 
-      invalidStringValues.foreach { invalidValue =>
-        val result = JsString(invalidValue).validate[Progress]
+      invalidStringValues.foreach { value =>
+        val result = JsString(value).validate[Progress]
         result mustBe a[JsError]
-        result.asInstanceOf[JsError].errors.head._2.head.message must include(s"Unknown progress value: $invalidValue")
+        result.asInstanceOf[JsError].errors.head._2.head.message must equal(s"Unknown progress value: $value")
       }
     }
 
@@ -48,7 +48,9 @@ class ProgressSpec extends AnyWordSpec with Matchers {
       val invalidNonStringValues = List(JsNumber(123), JsBoolean(true), JsNull, Json.obj("key" -> "value"))
 
       invalidNonStringValues.foreach { value =>
-        value.validate[Progress] mustBe a[JsError]
+        val result = value.validate[Progress]
+        result mustBe a[JsError]
+        result.asInstanceOf[JsError].errors.head._2.head.message must equal("String value expected for progress")
       }
     }
   }

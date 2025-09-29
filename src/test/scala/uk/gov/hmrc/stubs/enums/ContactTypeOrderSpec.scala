@@ -35,14 +35,12 @@ class ContactTypeOrderSpec extends AnyWordSpec with Matchers {
     }
 
     "reject any invalid string values" in {
-      val invalidStringValues = List("Fourth", "Fifth", "", "FIRST", "2nd")
+      val invalidStringValues = List("Zero", "Fourth", "Fifth", "", "FIRST", "2nd")
 
-      invalidStringValues.foreach { invalidValue =>
-        val result = JsString(invalidValue).validate[ContactTypeOrder]
+      invalidStringValues.foreach { value =>
+        val result = JsString(value).validate[ContactTypeOrder]
         result mustBe a[JsError]
-        result.asInstanceOf[JsError].errors.head._2.head.message must include(
-          s"Unknown ContactTypeOrder value: $invalidValue"
-        )
+        result.asInstanceOf[JsError].errors.head._2.head.message must equal(s"Unknown ContactTypeOrder value: $value")
       }
     }
 
@@ -50,7 +48,9 @@ class ContactTypeOrderSpec extends AnyWordSpec with Matchers {
       val invalidNonStringValues = List(JsNumber(1), JsBoolean(true), JsNull, Json.obj("key" -> "value"))
 
       invalidNonStringValues.foreach { value =>
-        value.validate[ContactTypeOrder] mustBe a[JsError]
+        val result = value.validate[ContactTypeOrder]
+        result mustBe a[JsError]
+        result.asInstanceOf[JsError].errors.head._2.head.message must include("ContactTypeOrder must be a string")
       }
     }
   }
