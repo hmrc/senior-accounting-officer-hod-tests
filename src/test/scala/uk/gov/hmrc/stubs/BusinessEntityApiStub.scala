@@ -92,7 +92,7 @@ object BusinessEntityApiStub {
   private def processEntityRetrieval(id: String): Future[ApiResponse] = {
     val uuid = UUID.fromString(id)
     id match {
-      case "00000000-0000-0000-0000-000000000000" => // Non-existent ID
+      case "00000000-0000-0000-0000-000000000000" =>
         Future.successful(ApiResponse(404, errorMessage("Business entity not found")))
 
       case _ =>

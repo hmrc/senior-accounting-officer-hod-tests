@@ -18,7 +18,6 @@ package uk.gov.hmrc.stubs
 
 import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
 import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Contact, Submission}
-
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -32,7 +31,7 @@ object TestDataFactory {
     val contactName  = "Jamaica John"
     val contactRole  = "Officer"
     val contactPhone = "+44 20 1234 5678"
-    val testDomain   = "testcompany.com"
+    val testDomain   = "testCompany.com"
   }
 
   def validBusinessEntity(
@@ -47,7 +46,7 @@ object TestDataFactory {
     name = name,
     contacts = List(validContact()),
     submissions = Some(List(validSubmission())),
-    createdAt = now()
+    createdAt = Instant.now()
   )
 
   def invalidBusinessEntity(): BusinessEntity = validBusinessEntity().copy(
@@ -74,7 +73,7 @@ object TestDataFactory {
 
   def validSubmission(): Submission = Submission(
     accountingPeriod = Some(validAccountingPeriod()),
-    receivedDate = now()
+    receivedDate = Instant.now()
   )
 
   def validAccountingPeriod(): AccountingPeriod = {
@@ -86,9 +85,7 @@ object TestDataFactory {
     )
   }
 
-  private def now(): Instant = Instant.now().truncatedTo(ChronoUnit.MINUTES)
-
   private def emailFor(name: String) = s"${name.toLowerCase.replace(" ", ".")}@${Defaults.testDomain}"
 
-  private def oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS).truncatedTo(ChronoUnit.MINUTES)
+  private def oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS)
 }

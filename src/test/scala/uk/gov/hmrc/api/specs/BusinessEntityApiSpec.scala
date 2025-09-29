@@ -17,9 +17,10 @@
 package uk.gov.hmrc.api.specs
 
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers
 import uk.gov.hmrc.stubs.TestDataFactory
 import uk.gov.hmrc.support.ApiTestSupport
+
 import java.util.UUID
 
 class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSupport {
@@ -30,39 +31,39 @@ class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSuppor
       "succeed with valid data" in {
         val businessEntity = TestDataFactory.validBusinessEntity()
         whenReady(request.put(businessEntity)) { response =>
-          response.body should include("Business entity updated successfully")
-          response.statusCode shouldBe 200
+          response.body must include("Business entity updated successfully")
+          response.statusCode mustBe 200
         }
       }
 
       "reject a duplicate registration" in {
         val businessEntity = TestDataFactory.duplicateBusinessEntity()
         whenReady(request.put(businessEntity)) { response =>
-          response.body should include("Business entity already exists")
-          response.statusCode shouldBe 409
+          response.body must include("Business entity already exists")
+          response.statusCode mustBe 409
         }
       }
 
       "reject invalid business entity data" in {
         val businessEntity = TestDataFactory.invalidBusinessEntity()
         whenReady(request.put(businessEntity)) { response =>
-          response.body should include("Invalid business entity data")
-          response.statusCode should equal(400)
+          response.body must include("Invalid business entity data")
+          response.statusCode mustBe 400
         }
       }
 
       "require request body" in {
         whenReady(request.putWithNoBody()) { response =>
-          response.body should include("Request body is required")
-          response.statusCode shouldBe 400
+          response.body must include("Request body is required")
+          response.statusCode mustBe 400
         }
       }
 
       "require valid content type header" in {
         val businessEntity = TestDataFactory.validBusinessEntity()
         whenReady(request.putWithInvalidContentType(businessEntity)) { response =>
-          response.body should include("Content-Type must be application/json")
-          response.statusCode shouldBe 400
+          response.body must include("Content-Type must be application/json")
+          response.statusCode mustBe 400
         }
       }
     }
@@ -72,24 +73,24 @@ class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSuppor
       "return a business entity for a valid ID" in {
         val validUUID = UUID.randomUUID() // Once we are able to add entities, update this code with a valid ID
         whenReady(request.get(validUUID)) { response =>
-          response.body should include(validUUID.toString)
-          response.body should include("Test Company Ltd")
-          response.statusCode shouldBe 200
+          response.body must include(validUUID.toString)
+          response.body must include("Test Company Ltd")
+          response.statusCode mustBe 200
         }
       }
 
       "return 'not found' for missing entity" in {
         val nonExistentId = "00000000-0000-0000-0000-000000000000"
         whenReady(request.get(nonExistentId)) { response =>
-          response.body should include("Business entity not found")
-          response.statusCode shouldBe 404
+          response.body must include("Business entity not found")
+          response.statusCode mustBe 404
         }
       }
 
       "reject invalid UUID format" in {
         whenReady(request.get("not-a-uuid")) { response =>
-          response.body should include("Invalid UUID format")
-          response.statusCode shouldBe 400
+          response.body must include("Invalid UUID format")
+          response.statusCode mustBe 400
         }
       }
     }
