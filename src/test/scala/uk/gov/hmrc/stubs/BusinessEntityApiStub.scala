@@ -21,7 +21,7 @@ import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.Future
 import java.util.UUID
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /** Pure stub implementation for business entity registration API.
   *
@@ -82,30 +82,22 @@ object BusinessEntityApiStub {
         )
     }
 
-  private def validateAndCallGetRequest(id: String): Future[ApiResponse] = {
-    if (!isValidUUID(id)) {
-      return badRequest("Invalid UUID format")
-    }
-    processEntityRetrieval(id)
-  }
+  private def validateAndCallGetRequest(id: String): Future[ApiResponse] =
+    Try(UUID.fromString(id)) match {
+      case Failure(_) =>
+        badRequest("Invalid UUID format")
 
-  private def processEntityRetrieval(id: String): Future[ApiResponse] = {
-    val uuid = UUID.fromString(id)
-    id match {
-      case "00000000-0000-0000-0000-000000000000" =>
+      case Success(_) if id == "00000000-0000-0000-0000-000000000000" =>
         Future.successful(ApiResponse(404, errorMessage("Business entity not found")))
 
-      case _ =>
+      case Success(uuid) =>
         val stubEntity = TestDataFactory.validBusinessEntity().copy(id = uuid)
         Future.successful(ApiResponse(200, Json.toJson(stubEntity).toString()))
     }
-  }
 
   private def badRequest(message: String): Future[ApiResponse] =
     Future.successful(ApiResponse(400, errorMessage(message)))
 
   private def errorMessage(message: String): String = s"""{"error":"$message"}"""
-
-  private def isValidUUID(id: String): Boolean = Try(UUID.fromString(id)).isSuccess
 
 }
