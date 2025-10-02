@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.api.specs
 
-import org.scalatest.featurespec.AnyFeatureSpec
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.GivenWhenThen
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.support.ApiTestSupport
 
-trait BaseSpec extends AnyFeatureSpec with GivenWhenThen with Matchers {}
+trait BaseSpec extends AnyWordSpec with Matchers with ApiTestSupport {}

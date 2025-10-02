@@ -17,13 +17,10 @@
 package uk.gov.hmrc.api.specs
 
 import org.scalatest.wordspec.AnyWordSpec
-import org.scalatest.matchers.must.Matchers
 import uk.gov.hmrc.stubs.TestDataFactory
-import uk.gov.hmrc.support.ApiTestSupport
-
 import java.util.UUID
 
-class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSupport {
+class BusinessEntityApiSpec extends BaseSpec {
 
   "The business entity registration API" must {
 
