@@ -71,7 +71,7 @@ class BusinessEntityApiSpec extends AnyWordSpec with Matchers with ApiTestSuppor
     "when retrieving a registration" must {
 
       "return a business entity for a valid ID" in {
-        val validUUID = UUID.randomUUID() // Once we are able to add entities, update this code with a valid ID
+        val validUUID = UUID.randomUUID()
         whenReady(request.get(validUUID)) { response =>
           response.body must include(validUUID.toString)
           response.body must include("Test Company Ltd")
