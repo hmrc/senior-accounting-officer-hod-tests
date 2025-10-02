@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,27 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.specs
+package uk.gov.hmrc.stubs.enums
 
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.support.ApiTestSupport
+import play.api.libs.json.*
 
-trait BaseSpec extends AnyWordSpec with Matchers with ApiTestSupport {}
+import scala.util.Try
+
+enum Progress {
+  case Subscribed, Assigned, Notified, Certified
+}
+
+object Progress {
+  given Reads[Progress] = Reads {
+    case JsString(value) =>
+      Try(Progress.valueOf(value))
+        .map(JsSuccess(_))
+        .getOrElse(JsError(s"Unknown progress value: $value"))
+
+    case _ => JsError("String value expected for progress")
+  }
+
+  given Writes[Progress] = Writes { progress =>
+    JsString(progress.toString)
+  }
+}

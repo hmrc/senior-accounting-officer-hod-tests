@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.specs
+package uk.gov.hmrc.stubs.models
 
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.support.ApiTestSupport
+import java.time.Instant
+import play.api.libs.json.*
+import uk.gov.hmrc.stubs.enums.Progress
 
-trait BaseSpec extends AnyWordSpec with Matchers with ApiTestSupport {}
+import java.time.temporal.ChronoUnit
+
+final case class Submission(
+  accountingPeriod: Option[AccountingPeriod],
+  receivedDate: Instant = Instant.now().truncatedTo(ChronoUnit.MINUTES),
+  progress: Progress = Progress.Subscribed
+)
+
+object Submission {
+  implicit val format: OFormat[Submission] = Json.format[Submission]
+}

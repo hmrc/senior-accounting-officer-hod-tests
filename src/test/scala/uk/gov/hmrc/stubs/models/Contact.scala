@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.api.specs
+package uk.gov.hmrc.stubs.models
 
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.support.ApiTestSupport
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.stubs.enums.ContactTypeOrder
 
-trait BaseSpec extends AnyWordSpec with Matchers with ApiTestSupport {}
+final case class Contact(
+  name: String,
+  role: String,
+  email: String,
+  phone: String,
+  order: ContactTypeOrder
+)
+
+object Contact {
+  implicit val format: OFormat[Contact] = Json.format[Contact]
+}
