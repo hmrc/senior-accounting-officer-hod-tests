@@ -17,15 +17,19 @@
 package uk.gov.hmrc.stubs.models
 
 import play.api.libs.json.{Json, OFormat}
+
 import java.time.Instant
+import java.util.UUID
 
-final case class AccountingPeriod(startDate: Instant, endDate: Instant, dueDate: Instant)
-final case class Period(startDate: Instant, endDate: Instant)
+final case class Company(
+  crn: String,
+  utr: String,
+  accountingPeriod: Period,
+  qualified: Boolean,
+  comment: Option[String] = None,
+  pastSAOs: Option[List[PastSAO]] = None //nonempty if defined needs validation
+)
 
-object AccountingPeriod {
-  implicit val format: OFormat[AccountingPeriod] = Json.format[AccountingPeriod]
-}
-
-object Period {
-  implicit val format: OFormat[Period] = Json.format[Period]
+object Company {
+  implicit val format: OFormat[Company] = Json.format[Company]
 }
