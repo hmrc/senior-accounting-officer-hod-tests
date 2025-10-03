@@ -26,8 +26,8 @@ final case class Company(
   utr: String,
   accountingPeriod: Period,
   qualified: Boolean,
-  comment: Option[String] = None,
-  pastSAOs: Option[List[PastSAO]] = None //nonempty if defined needs validation
+  pastSAOs: Option[List[PastSAO]] = None, //nonempty if defined needs validation
+  comments: Option[String] = None,
 )
 
 object Company {
