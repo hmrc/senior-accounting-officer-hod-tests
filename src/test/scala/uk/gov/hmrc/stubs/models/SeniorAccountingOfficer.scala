@@ -16,16 +16,26 @@
 
 package uk.gov.hmrc.stubs.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.*
+import uk.gov.hmrc.stubs.enums.Progress
+
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
-final case class AccountingPeriod(startDate: Instant, endDate: Instant, dueDate: Instant)
-final case class Period(startDate: Instant, endDate: Instant)
+final case class NominatedSAO(
+  fullName: String,
+  email: String                           
+)
 
-object AccountingPeriod {
-  implicit val format: OFormat[AccountingPeriod] = Json.format[AccountingPeriod]
+final case class PastSAO(
+  fullName: String,                      
+  actingPeriod: Period,
+)
+
+object NominatedSAO {
+  implicit val format: OFormat[NominatedSAO] = Json.format[NominatedSAO]
 }
 
-object Period {
-  implicit val format: OFormat[Period] = Json.format[Period]
+object PastSAO {
+  implicit val format: OFormat[PastSAO] = Json.format[PastSAO]
 }

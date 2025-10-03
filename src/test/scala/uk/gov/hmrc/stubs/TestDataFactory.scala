@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.stubs
 
+import org.apache.pdfbox.contentstream.operator.graphics.FillNonZeroRule
 import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
-import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Contact, Submission}
+import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, NominatedSAO, Notification, PastSAO, Period, Submission}
+
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -32,6 +34,8 @@ object TestDataFactory {
     val contactRole  = "Officer"
     val contactPhone = "+44 20 1234 5678"
     val testDomain   = "testCompany.com"
+    val qualified    = true
+    val saoName      = "Jacob Jacobson"
   }
 
   def validBusinessEntity(
@@ -60,6 +64,41 @@ object TestDataFactory {
   def duplicateBusinessEntity(): BusinessEntity =
     validBusinessEntity().copy(name = "DuplicateCompany")
 
+  def validNotification(): Notification = Notification(
+    nominatedSAO = validNominatedSAO(),
+    companies = List(validCompany())
+  )
+
+  def invalidNotification(
+   emptyNominated: NominatedSAO = NominatedSAO.apply(fullName = "", email = "")
+  ): Notification = Notification(
+    nominatedSAO = emptyNominated,
+    companies = List.empty
+  )
+
+  def validCompany(
+    crn: String = Defaults.crn,
+    utr: String = Defaults.utr,
+  ): Company = Company(
+    crn = crn,
+    utr = utr,
+    accountingPeriod = validSAOAccountingPeriod(),
+    pastSAOs = Some(List(validPastSAO())),
+    qualified = Defaults.qualified,
+    comments = Some("Test Company Comment")
+  )
+
+  def invalidCompany(
+    emptyPeriod: Period = Period.apply(startDate = null, endDate = null)
+  ): Company = validCompany().copy(
+    crn = "",
+    utr = "",
+    accountingPeriod = emptyPeriod,
+    pastSAOs = None,
+    qualified = false,
+    comments = None
+  )
+
   def validContact(
     name: String = Defaults.contactName,
     role: String = Defaults.contactRole
@@ -69,6 +108,20 @@ object TestDataFactory {
     email = emailFor(name),
     phone = Defaults.contactPhone,
     order = First
+  )
+
+  def validNominatedSAO(
+    fullName: String = Defaults.saoName
+  ): NominatedSAO = NominatedSAO(
+    fullName = fullName,
+    email = emailFor(fullName)
+  )
+
+  def validPastSAO(
+    fullName: String = Defaults.saoName
+  ): PastSAO = PastSAO(
+    fullName = fullName,
+    actingPeriod = validActingPeriod()
   )
 
   def validSubmission(): Submission = Submission(
@@ -82,6 +135,22 @@ object TestDataFactory {
       startDate = start,
       endDate = start.plus(365, ChronoUnit.DAYS),
       dueDate = start.plus(395, ChronoUnit.DAYS)
+    )
+  }
+
+  def validSAOAccountingPeriod(): Period = {
+    val start = oneYearAgo
+    Period(
+      startDate = start.plus(121, ChronoUnit.DAYS),
+      endDate = start.plus(365, ChronoUnit.DAYS)
+    )
+  }
+
+  def validActingPeriod(): Period = {
+    val start = oneYearAgo
+    Period(
+      startDate = start,
+      endDate = start.plus(120, ChronoUnit.DAYS)
     )
   }
 
