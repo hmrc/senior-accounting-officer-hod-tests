@@ -34,7 +34,7 @@ import scala.util.{Failure, Success, Try}
 
 object NotificationApiStub {
 
-  private val basePath = "/senior-accounting-officer-hod/notification"
+//  private val basePath = "/senior-accounting-officer-hod/notification"
 
   def call(
     method: String,

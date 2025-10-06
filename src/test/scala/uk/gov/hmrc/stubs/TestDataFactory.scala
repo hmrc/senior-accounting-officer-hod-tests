@@ -35,6 +35,7 @@ object TestDataFactory {
     val contactPhone = "+44 20 1234 5678"
     val testDomain   = "testCompany.com"
     val qualified    = true
+    val companyType = "LTD"
     val saoName      = "Jacob Jacobson"
   }
 
@@ -79,12 +80,15 @@ object TestDataFactory {
   def validCompany(
     crn: String = Defaults.crn,
     utr: String = Defaults.utr,
+    companyType: String = Defaults.companyType,
+    qualified: Boolean = Defaults.qualified          
   ): Company = Company(
     crn = crn,
     utr = utr,
+    companyType = companyType,
     accountingPeriod = validSAOAccountingPeriod(),
     pastSAOs = Some(List(validPastSAO())),
-    qualified = Defaults.qualified,
+    qualified = qualified,
     comments = Some("Test Company Comment")
   )
 

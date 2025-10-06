@@ -28,8 +28,8 @@ final case class NominatedSAO(
 )
 
 final case class PastSAO(
-                          fullName: String,
-                          actingPeriod: ActingPeriod,
+  fullName: String,
+  actingPeriod: ActingPeriod,
 )
 
 object NominatedSAO {

@@ -24,7 +24,7 @@ import java.time.temporal.ChronoUnit
 
 final case class Notification(
   nominatedSAO: NominatedSAO,
-  companies: List[Company], //Nonempty needs validation
+  companies: List[Company],
   progress: Progress = Progress.Notified
 )
 
