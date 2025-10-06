@@ -22,12 +22,12 @@ import java.time.Instant
 import java.util.UUID
 
 final case class Company(
-  crn: String,
-  utr: String,
-  accountingPeriod: Period,
-  qualified: Boolean,
-  pastSAOs: Option[List[PastSAO]] = None, //nonempty if defined needs validation
-  comments: Option[String] = None,
+                          crn: String,
+                          utr: String,
+                          accountingPeriod: ActingPeriod,
+                          qualified: Boolean,
+                          pastSAOs: Option[List[PastSAO]] = None, //nonempty if defined needs validation
+                          comments: Option[String] = None,
 )
 
 object Company {

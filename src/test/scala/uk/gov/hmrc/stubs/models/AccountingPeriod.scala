@@ -20,12 +20,12 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.Instant
 
 final case class AccountingPeriod(startDate: Instant, endDate: Instant, dueDate: Instant)
-final case class Period(startDate: Instant, endDate: Instant)
+final case class ActingPeriod(startDate: Instant, endDate: Instant)
 
 object AccountingPeriod {
   implicit val format: OFormat[AccountingPeriod] = Json.format[AccountingPeriod]
 }
 
-object Period {
-  implicit val format: OFormat[Period] = Json.format[Period]
+object ActingPeriod {
+  implicit val format: OFormat[ActingPeriod] = Json.format[ActingPeriod]
 }

@@ -18,7 +18,7 @@ package uk.gov.hmrc.stubs
 
 import org.apache.pdfbox.contentstream.operator.graphics.FillNonZeroRule
 import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
-import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, NominatedSAO, Notification, PastSAO, Period, Submission}
+import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, NominatedSAO, Notification, PastSAO, ActingPeriod, Submission}
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -89,7 +89,7 @@ object TestDataFactory {
   )
 
   def invalidCompany(
-    emptyPeriod: Period = Period.apply(startDate = null, endDate = null)
+    emptyPeriod: ActingPeriod = ActingPeriod.apply(startDate = null, endDate = null)
   ): Company = validCompany().copy(
     crn = "",
     utr = "",
@@ -138,17 +138,17 @@ object TestDataFactory {
     )
   }
 
-  def validSAOAccountingPeriod(): Period = {
+  def validSAOAccountingPeriod(): ActingPeriod = {
     val start = oneYearAgo
-    Period(
+    ActingPeriod(
       startDate = start.plus(121, ChronoUnit.DAYS),
       endDate = start.plus(365, ChronoUnit.DAYS)
     )
   }
 
-  def validActingPeriod(): Period = {
+  def validActingPeriod(): ActingPeriod = {
     val start = oneYearAgo
-    Period(
+    ActingPeriod(
       startDate = start,
       endDate = start.plus(120, ChronoUnit.DAYS)
     )

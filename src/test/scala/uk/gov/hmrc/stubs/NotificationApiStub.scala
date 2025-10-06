@@ -45,7 +45,7 @@ object NotificationApiStub {
     (method.toUpperCase, url) match {
       case ("PUT", basePath) =>
         validateAndCallPutRequest(body, contentType)
-        
+
     }
 
   private def validateAndCallPutRequest(requestBody: Option[JsValue], contentType: String): Future[ApiResponse] = {
@@ -66,11 +66,11 @@ object NotificationApiStub {
 
   private def processNotification(notification: Notification): Future[ApiResponse] =
     notification.nominatedSAO.fullName match {
-      case "" => badRequest("Invalid business entity data")
+      case "" => badRequest("Invalid notification data")
 
       case _ =>
         Future.successful(
-          ApiResponse(200, s"""{"message":"Notification submitted successfully"}""")
+          ApiResponse(200, s"""{"message":"Notification complete"}""")
         )
     }
 
