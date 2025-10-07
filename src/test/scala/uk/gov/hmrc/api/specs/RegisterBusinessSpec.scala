@@ -20,14 +20,14 @@ import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.stubs.TestDataFactory
 import java.util.UUID
 
-class BusinessEntityApiSpec extends BaseSpec {
+class RegisterBusinessSpec extends BaseSpec {
 
   "The business entity registration API" must {
 
     "when submitting a registration" must {
       "succeed with valid data" in {
         val businessEntity = TestDataFactory.validBusinessEntity()
-        whenReady(request.put(businessEntity)) { response =>
+        whenReady(request.put.register(businessEntity)) { response =>
           response.body must include("Business entity updated successfully")
           response.statusCode mustBe 200
         }
@@ -35,7 +35,7 @@ class BusinessEntityApiSpec extends BaseSpec {
 
       "reject a duplicate registration" in {
         val businessEntity = TestDataFactory.duplicateBusinessEntity()
-        whenReady(request.put(businessEntity)) { response =>
+        whenReady(request.put.register(businessEntity)) { response =>
           response.body must include("Business entity already exists")
           response.statusCode mustBe 409
         }
@@ -43,14 +43,14 @@ class BusinessEntityApiSpec extends BaseSpec {
 
       "reject invalid business entity data" in {
         val businessEntity = TestDataFactory.invalidBusinessEntity()
-        whenReady(request.put(businessEntity)) { response =>
+        whenReady(request.put.register(businessEntity)) { response =>
           response.body must include("Invalid business entity data")
           response.statusCode mustBe 400
         }
       }
 
       "require request body" in {
-        whenReady(request.putWithNoBody()) { response =>
+        whenReady(request.put.register.withNoBody()) { response =>
           response.body must include("Request body is required")
           response.statusCode mustBe 400
         }
@@ -58,7 +58,7 @@ class BusinessEntityApiSpec extends BaseSpec {
 
       "require valid content type header" in {
         val businessEntity = TestDataFactory.validBusinessEntity()
-        whenReady(request.putWithInvalidContentType(businessEntity)) { response =>
+        whenReady(request.put.register.withInvalidContentType(businessEntity)) { response =>
           response.body must include("Content-Type must be application/json")
           response.statusCode mustBe 400
         }
@@ -69,9 +69,9 @@ class BusinessEntityApiSpec extends BaseSpec {
 
       "return a business entity for a valid ID" in {
         val validUUID = UUID.randomUUID()
-        whenReady(request.get(validUUID)) { response =>
+        whenReady(request.get(validUUID.toString)) { response =>
           response.body must include(validUUID.toString)
-          response.body must include("Test Company Ltd")
+          response.body must include("Mapple myPhones Ltd")
           response.statusCode mustBe 200
         }
       }

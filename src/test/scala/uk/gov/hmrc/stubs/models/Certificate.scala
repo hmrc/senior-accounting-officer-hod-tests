@@ -18,20 +18,12 @@ package uk.gov.hmrc.stubs.models
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.Instant
-
-final case class Company(
-  companyName: String,
-  companyRegistrationNumber: String,
-  uniqueTaxpayerReference: Option[String],
-  companyType: String,
-  financialYearEnd: Instant,
-  pastSeniorAccountingOfficers: Option[List[PastSeniorAccountingOfficer]] = None,
-  qualified: Boolean,
-  affectedTaxRegimes: List[TaxRegime],
-  comment: Option[String] = None
+final case class Certificate(
+  submissionBy: String,
+  authorisingSeniorAccountingOfficer: String,
+  companies: List[Company]
 )
 
-object Company {
-  implicit val format: OFormat[Company] = Json.format[Company]
+object Certificate {
+  implicit val format: OFormat[Certificate] = Json.format[Certificate]
 }

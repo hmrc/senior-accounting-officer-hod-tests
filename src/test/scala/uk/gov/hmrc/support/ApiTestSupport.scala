@@ -17,46 +17,68 @@
 package uk.gov.hmrc.support
 
 import org.scalatest.concurrent.ScalaFutures
-import uk.gov.hmrc.stubs.{ApiResponse, BusinessEntityApiStub, NotificationApiStub}
-import uk.gov.hmrc.stubs.models.{BusinessEntity, Notification}
+import uk.gov.hmrc.stubs.{ApiResponse, ApiStubs, NotificationApiStub}
+import uk.gov.hmrc.stubs.models.{BusinessEntity, Notification, Certificate}
 import play.api.libs.json.Json
 
 import scala.concurrent.Future
 
 trait ApiTestSupport extends ScalaFutures {
 
-  object request {
-    private val baseUrl = "/senior-accounting-officer-hod/business-entity"
+  private val baseUrl = "/senior-accounting-officer-hod"
 
-    def put(entity: BusinessEntity): Future[ApiResponse] =
-      BusinessEntityApiStub.call(
+  object request extends RequestApi
+
+  case class RequestApi() {
+    def put: PutRequest = PutRequest()
+
+    def get(entityId: String): Future[ApiResponse] =
+      ApiStubs.call(
+        method = "GET",
+        url = s"$baseUrl/business-entity/$entityId"
+      )
+  }
+
+  case class PutRequest() {
+    def register: Register = Register()
+    def certify: Certify   = Certify()
+  }
+
+  case class Register() {
+    val path: String = s"$baseUrl/business-entity"
+
+    def apply(entity: BusinessEntity): Future[ApiResponse] =
+      ApiStubs.call(
         method = "PUT",
-        url = baseUrl,
+        url = path,
         body = Some(Json.toJson(entity))
       )
 
-    def putWithNoBody(): Future[ApiResponse] =
-      BusinessEntityApiStub.call(
+    def withNoBody(): Future[ApiResponse] =
+      ApiStubs.call(
         method = "PUT",
-        url = baseUrl,
+        url = path,
         body = None
       )
 
-    def putWithInvalidContentType(entity: BusinessEntity): Future[ApiResponse] =
-      BusinessEntityApiStub.call(
+    def withInvalidContentType(entity: BusinessEntity): Future[ApiResponse] =
+      ApiStubs.call(
         method = "PUT",
-        url = baseUrl,
+        url = path,
         body = Some(Json.toJson(entity)),
         contentType = "text/plain"
       )
+  }
 
-    def get(entityId: String): Future[ApiResponse] =
-      BusinessEntityApiStub.call(
-        method = "GET",
-        url = s"$baseUrl/$entityId"
+  case class Certify() {
+    val path: String = s"$baseUrl/certification"
+
+    def apply(certificate: Certificate): Future[ApiResponse] =
+      ApiStubs.call(
+        method = "PUT",
+        url = path,
+        body = Some(Json.toJson(certificate))
       )
-
-    def get(entityId: java.util.UUID): Future[ApiResponse] = get(entityId.toString)
   }
 
   object requestNotification {

@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.stubs.models
+package uk.gov.hmrc.api.specs
 
-import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.stubs.TestDataFactory
 
-import java.time.Instant
+class SubmitCertificateSpec extends BaseSpec {
 
-final case class Company(
-  companyName: String,
-  companyRegistrationNumber: String,
-  uniqueTaxpayerReference: Option[String],
-  companyType: String,
-  financialYearEnd: Instant,
-  pastSeniorAccountingOfficers: Option[List[PastSeniorAccountingOfficer]] = None,
-  qualified: Boolean,
-  affectedTaxRegimes: List[TaxRegime],
-  comment: Option[String] = None
-)
+  "The certification API" must {
 
-object Company {
-  implicit val format: OFormat[Company] = Json.format[Company]
+    "when submitting a certification" must {
+      "succeed with valid data" in {
+        val certificate = TestDataFactory.validCertificate()
+        whenReady(request.put.certify(certificate)) { response =>
+          response.body must include("Certification complete")
+          response.statusCode mustBe 200
+        }
+      }
+    }
+  }
 }

@@ -23,7 +23,7 @@ import java.time.Instant
 final case class BusinessEntity(
   id: UUID,
   crn: String,
-  utr: String,
+  utr: Option[String],
   name: String,
   contacts: List[Contact] = List.empty,
   submissions: Option[List[Submission]] = None,

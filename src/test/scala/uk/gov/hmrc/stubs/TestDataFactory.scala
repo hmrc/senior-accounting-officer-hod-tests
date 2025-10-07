@@ -17,31 +17,30 @@
 package uk.gov.hmrc.stubs
 
 import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
-import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, Notification, PastSeniorAccountingOfficer, SeniorAccountingOfficer, Submission}
+import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Certificate, Company, Contact, Notification, PastSeniorAccountingOfficer, SeniorAccountingOfficer, Submission, TaxRegime}
+
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import scala.util.Random
 
 object TestDataFactory {
 
   private object Defaults {
-    val companyName  = "Valid Test Company Ltd"
-    val crn          = "12345678"
-    val utr          = "1234567890"
-    val contactName  = "Jamaica John"
-    val contactRole  = "Officer"
-    val contactPhone = "+44 20 1234 5678"
-    val testDomain   = "testCompany.com"
-    val qualified    = true
-    val companyType  = "LTD"
-    val saoName      = "Jacob Jacobson"
+    val testCompanyOneName = "Mapple myPhones Ltd"
+    val testCompanyTwoName = "Wiperosoft Ltd"
+    val contactName        = "Jamaica John"
+    val contactRole        = "Officer"
+    val contactPhone       = "+44 20 7946 0958"
+    val testDomain         = "testCompany.com"
+    val saoFullName        = "Sir Counts A Lot"
   }
 
   def validBusinessEntity(
     id: UUID = UUID.randomUUID(),
-    name: String = Defaults.companyName,
-    crn: String = Defaults.crn,
-    utr: String = Defaults.utr
+    name: String = Defaults.testCompanyOneName,
+    crn: String = randomAlphanumericId(10),
+    utr: Option[String] = Some(randomAlphanumericId(8))
   ): BusinessEntity = BusinessEntity(
     id = id,
     crn = crn,
@@ -54,14 +53,14 @@ object TestDataFactory {
 
   def invalidBusinessEntity(): BusinessEntity = validBusinessEntity().copy(
     crn = "",
-    utr = "",
+    utr = None,
     name = "",
     contacts = List.empty,
     submissions = None
   )
 
   def duplicateBusinessEntity(): BusinessEntity =
-    validBusinessEntity().copy(name = "DuplicateCompany")
+    validBusinessEntity(name = "DuplicateCompany")
 
   def validNotification(): Notification = Notification(
     seniorAccountingOfficer = validSeniorAccountingOfficer(),
@@ -134,7 +133,46 @@ object TestDataFactory {
     )
   }
 
+  def validCertificate(
+    submitter: String = Defaults.contactName,
+    authorisedSao: String = Defaults.saoFullName
+  ): Certificate = Certificate(
+    submissionBy = submitter,
+    authorisingSeniorAccountingOfficer = authorisedSao,
+    companies = List(validCompanyNoQualifications(), validCompanyWithQualifications())
+  )
+
+  def validCompanyNoQualifications(
+    name: String = Defaults.testCompanyOneName,
+    crn: String = randomAlphanumericId(10),
+    utr: Option[String] = Some(randomAlphanumericId(8)),
+    companyModel: String = "LTD",
+    isQualified: Boolean = false,
+    regimes: List[TaxRegime] = List(TaxRegime()),
+    notes: String = "Some random string thing!"
+  ): Company = Company(
+    companyName = name,
+    companyRegistrationNumber = crn,
+    uniqueTaxpayerReference = utr,
+    companyType = companyModel,
+    financialYearEnd = Instant.now().plus(30, ChronoUnit.DAYS),
+    accountingPeriod = validAccountingPeriod().copy(dueDate = None),
+    qualified = isQualified,
+    affectedTaxRegimes = regimes,
+    comment = notes
+  )
+
+  def validCompanyWithQualifications(): Company =
+    validCompanyNoQualifications(
+      name = Defaults.testCompanyTwoName,
+      isQualified = true,
+      regimes = List(TaxRegime(vat = true, corporationTax = true, stampDutyLandTax = true)),
+      notes = "Wiprosoft has problems man!"
+    )
+
   private def emailFor(name: String) = s"${name.toLowerCase.replace(" ", ".")}@${Defaults.testDomain}"
 
   private def oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS)
+
+  def randomAlphanumericId(length: Int): String = Random.alphanumeric.take(length).mkString
 }
