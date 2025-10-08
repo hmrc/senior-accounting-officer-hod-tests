@@ -17,9 +17,10 @@
 package uk.gov.hmrc.support
 
 import org.scalatest.concurrent.ScalaFutures
-import uk.gov.hmrc.stubs.{ApiResponse, BusinessEntityApiStub}
-import uk.gov.hmrc.stubs.models.BusinessEntity
+import uk.gov.hmrc.stubs.{ApiResponse, BusinessEntityApiStub, NotificationApiStub}
+import uk.gov.hmrc.stubs.models.{BusinessEntity, Notification}
 import play.api.libs.json.Json
+
 import scala.concurrent.Future
 
 trait ApiTestSupport extends ScalaFutures {
@@ -56,5 +57,31 @@ trait ApiTestSupport extends ScalaFutures {
       )
 
     def get(entityId: java.util.UUID): Future[ApiResponse] = get(entityId.toString)
+  }
+
+  object requestNotification {
+    private val baseUrl = "/senior-accounting-officer-hod/notification"
+
+    def put(notify: Notification): Future[ApiResponse] =
+      NotificationApiStub.call(
+        method = "PUT",
+        url = baseUrl,
+        body = Some(Json.toJson(notify))
+      )
+
+    def putWithNoBody(): Future[ApiResponse] =
+      NotificationApiStub.call(
+        method = "PUT",
+        url = baseUrl,
+        body = None
+      )
+
+    def putWithInvalidContentType(notify: Notification): Future[ApiResponse] =
+      NotificationApiStub.call(
+        method = "PUT",
+        url = baseUrl,
+        body = Some(Json.toJson(notify)),
+        contentType = "text/plain"
+      )
   }
 }

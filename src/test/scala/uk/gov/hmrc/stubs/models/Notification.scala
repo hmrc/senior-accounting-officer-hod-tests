@@ -16,15 +16,13 @@
 
 package uk.gov.hmrc.stubs.models
 
-import play.api.libs.json.{Json, OFormat}
-import java.time.Instant
+import play.api.libs.json.*
 
-final case class AccountingPeriod(
-  startDate: Instant,
-  endDate: Instant,
-  dueDate: Option[Instant] = None
+final case class Notification(
+  seniorAccountingOfficer: SeniorAccountingOfficer,
+  companies: List[Company]
 )
 
-object AccountingPeriod {
-  implicit val format: OFormat[AccountingPeriod] = Json.format[AccountingPeriod]
+object Notification {
+  implicit val format: OFormat[Notification] = Json.format[Notification]
 }

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.stubs
 
 import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
-import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Contact, Submission}
+import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, Notification, PastSeniorAccountingOfficer, SeniorAccountingOfficer, Submission}
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -32,6 +32,9 @@ object TestDataFactory {
     val contactRole  = "Officer"
     val contactPhone = "+44 20 1234 5678"
     val testDomain   = "testCompany.com"
+    val qualified    = true
+    val companyType  = "LTD"
+    val saoName      = "Jacob Jacobson"
   }
 
   def validBusinessEntity(
@@ -60,6 +63,29 @@ object TestDataFactory {
   def duplicateBusinessEntity(): BusinessEntity =
     validBusinessEntity().copy(name = "DuplicateCompany")
 
+  def validNotification(): Notification = Notification(
+    seniorAccountingOfficer = validSeniorAccountingOfficer(),
+    companies = List(validCompany())
+  )
+
+  def validCompany(
+    name: String = Defaults.companyName,
+    crn: String = Defaults.crn,
+    utr: String = Defaults.utr,
+    companyType: String = Defaults.companyType,
+    fye: Instant = Instant.now().plus(200, ChronoUnit.DAYS),
+    qualified: Boolean = Defaults.qualified
+  ): Company = Company(
+    companyName = name,
+    companyRegistrationNumber = crn,
+    uniqueTaxpayerReference = Some(utr),
+    companyType = companyType,
+    financialYearEnd = fye,
+    pastSeniorAccountingOfficers = Some(List(validPastSeniorAccountingOfficer())),
+    qualified = qualified,
+    comments = Some("Test Company Comment")
+  )
+
   def validContact(
     name: String = Defaults.contactName,
     role: String = Defaults.contactRole
@@ -69,6 +95,29 @@ object TestDataFactory {
     email = emailFor(name),
     phone = Defaults.contactPhone,
     order = First
+  )
+
+  def validSeniorAccountingOfficer(
+    fullName: String = Defaults.contactName
+  ): SeniorAccountingOfficer = SeniorAccountingOfficer(
+    fullName = fullName,
+    email = emailFor(fullName),
+    accountingPeriod = validAccountingPeriod().copy(
+      startDate = oneYearAgo.plus(120, ChronoUnit.DAYS),
+      endDate = Instant.now(),
+      dueDate = None
+    )
+  )
+
+  def validPastSeniorAccountingOfficer(
+    fullName: String = Defaults.saoName
+  ): PastSeniorAccountingOfficer = PastSeniorAccountingOfficer(
+    fullName = fullName,
+    accountingPeriod = validAccountingPeriod().copy(
+      startDate = oneYearAgo,
+      endDate = oneYearAgo.plus(119, ChronoUnit.DAYS),
+      dueDate = None
+    )
   )
 
   def validSubmission(): Submission = Submission(
@@ -81,7 +130,7 @@ object TestDataFactory {
     AccountingPeriod(
       startDate = start,
       endDate = start.plus(365, ChronoUnit.DAYS),
-      dueDate = start.plus(395, ChronoUnit.DAYS)
+      dueDate = Some(start.plus(395, ChronoUnit.DAYS))
     )
   }
 
