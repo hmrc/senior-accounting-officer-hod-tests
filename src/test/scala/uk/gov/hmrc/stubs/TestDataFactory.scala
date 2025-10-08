@@ -70,12 +70,12 @@ object TestDataFactory {
   )
 
   def validCompany(
-    name:String = Defaults.companyName,
-    crn: String = Defaults.crn,
-    utr: String = Defaults.utr,
-    companyType: String = Defaults.companyType,
-    fye: Instant = oneYearAgo,
-    qualified: Boolean = Defaults.qualified,
+                    name:String = Defaults.companyName,
+                    crn: String = Defaults.crn,
+                    utr: String = Defaults.utr,
+                    companyType: String = Defaults.companyType,
+                    fye: Instant = todayDate,
+                    qualified: Boolean = Defaults.qualified,
   ): Company = Company(
     companyName = name,
     companyRegistrationNumber = crn,
@@ -103,14 +103,18 @@ object TestDataFactory {
   ): SeniorAccountingOfficer = SeniorAccountingOfficer(
     fullName = fullName,
     email = emailFor(fullName),
-    accountingPeriod = validSeniorAccountingOfficerPeriod()
+    accountingPeriod = validAccountingPeriod().copy(
+      startDate = oneYearAgo.plus(120, ChronoUnit.DAYS), endDate = todayDate, dueDate = None
+    )
   )
 
   def validPastSeniorAccountingOfficer(
     fullName: String = Defaults.saoName
   ): PastSeniorAccountingOfficer = PastSeniorAccountingOfficer(
     fullName = fullName,
-    accountingPeriod = validPastSeniorAccountingOfficerPeriod()
+    accountingPeriod = validAccountingPeriod().copy(
+      startDate = oneYearAgo, endDate = oneYearAgo.plus(119, ChronoUnit.DAYS), dueDate = None
+    )
   )
 
   def validSubmission(): Submission = Submission(
@@ -127,23 +131,8 @@ object TestDataFactory {
     )
   }
 
-  def validSeniorAccountingOfficerPeriod(): AccountingPeriod = {
-    val start = oneYearAgo
-    AccountingPeriod(
-      startDate = start.plus(120, ChronoUnit.DAYS),
-      endDate = start.plus(365, ChronoUnit.DAYS)
-    )
-  }
-
-  def validPastSeniorAccountingOfficerPeriod(): AccountingPeriod = {
-    val start = oneYearAgo
-    AccountingPeriod(
-      startDate = start,
-      endDate = start.plus(119, ChronoUnit.DAYS)
-    )
-  }
-
   private def emailFor(name: String) = s"${name.toLowerCase.replace(" ", ".")}@${Defaults.testDomain}"
 
   private def oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS)
+  private def todayDate = Instant.now()
 }

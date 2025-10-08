@@ -35,15 +35,15 @@ class SubmitNotificationSpec extends BaseSpec {
       }
 
       "require request body" in {
-        whenReady(request.putWithNoBody()) { response =>
+        whenReady(requestNotification.putWithNoBody()) { response =>
           response.body must include("Request body is required")
           response.statusCode mustBe 400
         }
       }
 
       "require valid content type header" in {
-        val businessEntity = TestDataFactory.validBusinessEntity()
-        whenReady(request.putWithInvalidContentType(businessEntity)) { response =>
+        val notification = TestDataFactory.validNotification()
+        whenReady(requestNotification.putWithInvalidContentType(notification)) { response =>
           response.body must include("Content-Type must be application/json")
           response.statusCode mustBe 400
         }
