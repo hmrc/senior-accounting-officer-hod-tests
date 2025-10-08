@@ -70,11 +70,11 @@ object TestDataFactory {
   )
 
   def validCompany(
-    name:String = Defaults.companyName,              
+    name:String = Defaults.companyName,
     crn: String = Defaults.crn,
     utr: String = Defaults.utr,
     companyType: String = Defaults.companyType,
-    fye: Instant = oneYearAgo,              
+    fye: Instant = oneYearAgo,
     qualified: Boolean = Defaults.qualified,
   ): Company = Company(
     companyName = name,
@@ -103,14 +103,14 @@ object TestDataFactory {
   ): SeniorAccountingOfficer = SeniorAccountingOfficer(
     fullName = fullName,
     email = emailFor(fullName),
-    accountingPeriod = validSeniorAccountingOfficePeriod()
+    accountingPeriod = validSeniorAccountingOfficerPeriod()
   )
 
   def validPastSeniorAccountingOfficer(
     fullName: String = Defaults.saoName
   ): PastSeniorAccountingOfficer = PastSeniorAccountingOfficer(
     fullName = fullName,
-    accountingPeriod = validSeniorAccountingOfficePeriod()
+    accountingPeriod = validPastSeniorAccountingOfficerPeriod()
   )
 
   def validSubmission(): Submission = Submission(
@@ -126,12 +126,20 @@ object TestDataFactory {
       dueDate = Some(start.plus(395, ChronoUnit.DAYS))
     )
   }
-  
-  def validSeniorAccountingOfficePeriod(): AccountingPeriod = {
+
+  def validSeniorAccountingOfficerPeriod(): AccountingPeriod = {
+    val start = oneYearAgo
+    AccountingPeriod(
+      startDate = start.plus(120, ChronoUnit.DAYS),
+      endDate = start.plus(365, ChronoUnit.DAYS)
+    )
+  }
+
+  def validPastSeniorAccountingOfficerPeriod(): AccountingPeriod = {
     val start = oneYearAgo
     AccountingPeriod(
       startDate = start,
-      endDate = start.plus(150, ChronoUnit.DAYS)
+      endDate = start.plus(119, ChronoUnit.DAYS)
     )
   }
 
