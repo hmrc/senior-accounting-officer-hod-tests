@@ -17,15 +17,10 @@
 package uk.gov.hmrc.stubs.models
 
 import play.api.libs.json.*
-import uk.gov.hmrc.stubs.enums.Progress
-
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 final case class Notification(
-  nominatedSAO: NominatedSAO,
-  companies: List[Company],
-  progress: Progress = Progress.Notified
+  seniorAccountingOfficer: SeniorAccountingOfficer,
+  companies: List[Company]
 )
 
 object Notification {

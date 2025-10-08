@@ -22,20 +22,21 @@ import uk.gov.hmrc.stubs.enums.Progress
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-final case class NominatedSAO(
+final case class SeniorAccountingOfficer(
   fullName: String,
-  email: String                           
+  email: String,
+  accountingPeriod: AccountingPeriod                           
 )
 
-final case class PastSAO(
+final case class PastSeniorAccountingOfficer(
   fullName: String,
-  actingPeriod: ActingPeriod,
+  accountingPeriod: AccountingPeriod
 )
 
-object NominatedSAO {
-  implicit val format: OFormat[NominatedSAO] = Json.format[NominatedSAO]
+object SeniorAccountingOfficer {
+  implicit val format: OFormat[SeniorAccountingOfficer] = Json.format[SeniorAccountingOfficer]
 }
 
-object PastSAO {
-  implicit val format: OFormat[PastSAO] = Json.format[PastSAO]
+object PastSeniorAccountingOfficer {
+  implicit val format: OFormat[PastSeniorAccountingOfficer] = Json.format[PastSeniorAccountingOfficer]
 }

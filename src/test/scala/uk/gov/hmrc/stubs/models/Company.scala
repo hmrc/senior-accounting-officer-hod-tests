@@ -17,18 +17,17 @@
 package uk.gov.hmrc.stubs.models
 
 import play.api.libs.json.{Json, OFormat}
-
 import java.time.Instant
-import java.util.UUID
 
 final case class Company(
-  crn: String,
-  utr: String,
-  companyType: String,
-  accountingPeriod: ActingPeriod,
-  qualified: Boolean,
-  pastSAOs: Option[List[PastSAO]] = None,
-  comments: Option[String] = None,
+ companyName: String,
+ companyRegistrationNumber: String,
+ uniqueTaxpayerReference: Option[String],
+ companyType: String,
+ financialYearEnd: Instant,
+ pastSeniorAccountingOfficers: Option[List[PastSeniorAccountingOfficer]] = None,
+ qualified: Boolean,
+ comments: Option[String] = None,
 )
 
 object Company {

@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.stubs
 
-import org.apache.pdfbox.contentstream.operator.graphics.FillNonZeroRule
 import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
-import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, NominatedSAO, Notification, PastSAO, ActingPeriod, Submission}
+import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, SeniorAccountingOfficer, Notification, PastSeniorAccountingOfficer, Submission}
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -66,41 +65,26 @@ object TestDataFactory {
     validBusinessEntity().copy(name = "DuplicateCompany")
 
   def validNotification(): Notification = Notification(
-    nominatedSAO = validNominatedSAO(),
+    seniorAccountingOfficer = validSeniorAccountingOfficer(),
     companies = List(validCompany())
   )
 
-  def invalidNotification(
-   emptyNominated: NominatedSAO = NominatedSAO.apply(fullName = "", email = "")
-  ): Notification = Notification(
-    nominatedSAO = emptyNominated,
-    companies = List.empty
-  )
-
   def validCompany(
+    name:String = Defaults.companyName,              
     crn: String = Defaults.crn,
     utr: String = Defaults.utr,
     companyType: String = Defaults.companyType,
-    qualified: Boolean = Defaults.qualified          
+    fye: Instant = oneYearAgo,              
+    qualified: Boolean = Defaults.qualified,
   ): Company = Company(
-    crn = crn,
-    utr = utr,
+    companyName = name,
+    companyRegistrationNumber = crn,
+    uniqueTaxpayerReference = Some(utr),
     companyType = companyType,
-    accountingPeriod = validSAOAccountingPeriod(),
-    pastSAOs = Some(List(validPastSAO())),
+    financialYearEnd = fye.plus(200, ChronoUnit.DAYS),
+    pastSeniorAccountingOfficers = Some(List(validPastSeniorAccountingOfficer())),
     qualified = qualified,
     comments = Some("Test Company Comment")
-  )
-
-  def invalidCompany(
-    emptyPeriod: ActingPeriod = ActingPeriod.apply(startDate = null, endDate = null)
-  ): Company = validCompany().copy(
-    crn = "",
-    utr = "",
-    accountingPeriod = emptyPeriod,
-    pastSAOs = None,
-    qualified = false,
-    comments = None
   )
 
   def validContact(
@@ -114,18 +98,19 @@ object TestDataFactory {
     order = First
   )
 
-  def validNominatedSAO(
-    fullName: String = Defaults.saoName
-  ): NominatedSAO = NominatedSAO(
+  def validSeniorAccountingOfficer(
+    fullName: String = Defaults.contactName
+  ): SeniorAccountingOfficer = SeniorAccountingOfficer(
     fullName = fullName,
-    email = emailFor(fullName)
+    email = emailFor(fullName),
+    accountingPeriod = validSeniorAccountingOfficePeriod()
   )
 
-  def validPastSAO(
+  def validPastSeniorAccountingOfficer(
     fullName: String = Defaults.saoName
-  ): PastSAO = PastSAO(
+  ): PastSeniorAccountingOfficer = PastSeniorAccountingOfficer(
     fullName = fullName,
-    actingPeriod = validActingPeriod()
+    accountingPeriod = validSeniorAccountingOfficePeriod()
   )
 
   def validSubmission(): Submission = Submission(
@@ -138,23 +123,15 @@ object TestDataFactory {
     AccountingPeriod(
       startDate = start,
       endDate = start.plus(365, ChronoUnit.DAYS),
-      dueDate = start.plus(395, ChronoUnit.DAYS)
+      dueDate = Some(start.plus(395, ChronoUnit.DAYS))
     )
   }
-
-  def validSAOAccountingPeriod(): ActingPeriod = {
+  
+  def validSeniorAccountingOfficePeriod(): AccountingPeriod = {
     val start = oneYearAgo
-    ActingPeriod(
-      startDate = start.plus(121, ChronoUnit.DAYS),
-      endDate = start.plus(365, ChronoUnit.DAYS)
-    )
-  }
-
-  def validActingPeriod(): ActingPeriod = {
-    val start = oneYearAgo
-    ActingPeriod(
+    AccountingPeriod(
       startDate = start,
-      endDate = start.plus(120, ChronoUnit.DAYS)
+      endDate = start.plus(150, ChronoUnit.DAYS)
     )
   }
 

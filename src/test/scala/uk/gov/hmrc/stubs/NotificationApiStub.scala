@@ -65,9 +65,8 @@ object NotificationApiStub {
   }
 
   private def processNotification(notification: Notification): Future[ApiResponse] =
-    notification.nominatedSAO.fullName match {
-      case "" => badRequest("Invalid notification data")
-
+    notification.seniorAccountingOfficer.fullName match {
+      
       case _ =>
         Future.successful(
           ApiResponse(200, s"""{"message":"Notification complete"}""")

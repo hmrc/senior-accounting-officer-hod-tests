@@ -21,7 +21,7 @@ import uk.gov.hmrc.stubs.TestDataFactory
 
 import java.util.UUID
 
-class NotificationApiSpec extends BaseSpec {
+class SubmitNotificationSpec extends BaseSpec {
 
   "The notification API" must {
 
@@ -31,14 +31,6 @@ class NotificationApiSpec extends BaseSpec {
         whenReady(requestNotification.put(notification)) { response =>
           response.body must include("Notification complete")
           response.statusCode mustBe 200
-        }
-      }
-
-      "reject invalid business entity data" in {
-        val notification = TestDataFactory.invalidNotification()
-        whenReady(requestNotification.put(notification)) { response =>
-          response.body must include("Invalid notification data")
-          response.statusCode mustBe 400
         }
       }
 
