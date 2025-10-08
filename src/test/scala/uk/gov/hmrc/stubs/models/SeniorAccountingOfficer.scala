@@ -25,7 +25,7 @@ import java.time.temporal.ChronoUnit
 final case class SeniorAccountingOfficer(
   fullName: String,
   email: String,
-  accountingPeriod: AccountingPeriod                           
+  accountingPeriod: AccountingPeriod
 )
 
 final case class PastSeniorAccountingOfficer(

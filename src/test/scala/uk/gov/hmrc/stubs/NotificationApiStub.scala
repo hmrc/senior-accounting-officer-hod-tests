@@ -17,11 +17,8 @@
 package uk.gov.hmrc.stubs
 
 import uk.gov.hmrc.stubs.models.Notification
-import play.api.libs.json.{JsValue, Json}
-
+import play.api.libs.json.JsValue
 import scala.concurrent.Future
-import java.util.UUID
-import scala.util.{Failure, Success, Try}
 
 /** Pure stub implementation for business entity registration API.
   *
@@ -30,11 +27,7 @@ import scala.util.{Failure, Success, Try}
   * TODO: (24/09) MA - Make a card to remove this file when the actual API implementation is built and implemented.
   */
 
-//class ApiResponse(statusCode: Int, body: String)
-
 object NotificationApiStub {
-
-//  private val basePath = "/senior-accounting-officer-hod/notification"
 
   def call(
     method: String,
@@ -66,7 +59,7 @@ object NotificationApiStub {
 
   private def processNotification(notification: Notification): Future[ApiResponse] =
     notification.seniorAccountingOfficer.fullName match {
-      
+
       case _ =>
         Future.successful(
           ApiResponse(200, s"""{"message":"Notification complete"}""")

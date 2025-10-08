@@ -19,8 +19,6 @@ package uk.gov.hmrc.api.specs
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.stubs.TestDataFactory
 
-import java.util.UUID
-
 class SubmitNotificationSpec extends BaseSpec {
 
   "The notification API" must {

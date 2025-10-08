@@ -20,8 +20,8 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.Instant
 
 final case class AccountingPeriod(
-  startDate: Instant, 
-  endDate: Instant, 
+  startDate: Instant,
+  endDate: Instant,
   dueDate: Option[Instant] = None
 )
 

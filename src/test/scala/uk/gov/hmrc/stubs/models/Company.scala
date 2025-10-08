@@ -20,14 +20,14 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.Instant
 
 final case class Company(
- companyName: String,
- companyRegistrationNumber: String,
- uniqueTaxpayerReference: Option[String],
- companyType: String,
- financialYearEnd: Instant,
- pastSeniorAccountingOfficers: Option[List[PastSeniorAccountingOfficer]] = None,
- qualified: Boolean,
- comments: Option[String] = None,
+  companyName: String,
+  companyRegistrationNumber: String,
+  uniqueTaxpayerReference: Option[String],
+  companyType: String,
+  financialYearEnd: Instant,
+  pastSeniorAccountingOfficers: Option[List[PastSeniorAccountingOfficer]] = None,
+  qualified: Boolean,
+  comments: Option[String] = None
 )
 
 object Company {

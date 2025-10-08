@@ -17,8 +17,7 @@
 package uk.gov.hmrc.stubs
 
 import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
-import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, SeniorAccountingOfficer, Notification, PastSeniorAccountingOfficer, Submission}
-
+import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, Notification, PastSeniorAccountingOfficer, SeniorAccountingOfficer, Submission}
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -34,7 +33,7 @@ object TestDataFactory {
     val contactPhone = "+44 20 1234 5678"
     val testDomain   = "testCompany.com"
     val qualified    = true
-    val companyType = "LTD"
+    val companyType  = "LTD"
     val saoName      = "Jacob Jacobson"
   }
 
@@ -70,18 +69,18 @@ object TestDataFactory {
   )
 
   def validCompany(
-                    name:String = Defaults.companyName,
-                    crn: String = Defaults.crn,
-                    utr: String = Defaults.utr,
-                    companyType: String = Defaults.companyType,
-                    fye: Instant = todayDate,
-                    qualified: Boolean = Defaults.qualified,
+    name: String = Defaults.companyName,
+    crn: String = Defaults.crn,
+    utr: String = Defaults.utr,
+    companyType: String = Defaults.companyType,
+    fye: Instant = Instant.now().plus(200, ChronoUnit.DAYS),
+    qualified: Boolean = Defaults.qualified
   ): Company = Company(
     companyName = name,
     companyRegistrationNumber = crn,
     uniqueTaxpayerReference = Some(utr),
     companyType = companyType,
-    financialYearEnd = fye.plus(200, ChronoUnit.DAYS),
+    financialYearEnd = fye,
     pastSeniorAccountingOfficers = Some(List(validPastSeniorAccountingOfficer())),
     qualified = qualified,
     comments = Some("Test Company Comment")
@@ -104,7 +103,9 @@ object TestDataFactory {
     fullName = fullName,
     email = emailFor(fullName),
     accountingPeriod = validAccountingPeriod().copy(
-      startDate = oneYearAgo.plus(120, ChronoUnit.DAYS), endDate = todayDate, dueDate = None
+      startDate = oneYearAgo.plus(120, ChronoUnit.DAYS),
+      endDate = Instant.now(),
+      dueDate = None
     )
   )
 
@@ -113,7 +114,9 @@ object TestDataFactory {
   ): PastSeniorAccountingOfficer = PastSeniorAccountingOfficer(
     fullName = fullName,
     accountingPeriod = validAccountingPeriod().copy(
-      startDate = oneYearAgo, endDate = oneYearAgo.plus(119, ChronoUnit.DAYS), dueDate = None
+      startDate = oneYearAgo,
+      endDate = oneYearAgo.plus(119, ChronoUnit.DAYS),
+      dueDate = None
     )
   )
 
@@ -134,5 +137,4 @@ object TestDataFactory {
   private def emailFor(name: String) = s"${name.toLowerCase.replace(" ", ".")}@${Defaults.testDomain}"
 
   private def oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS)
-  private def todayDate = Instant.now()
 }
