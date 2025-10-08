@@ -17,7 +17,9 @@
 package uk.gov.hmrc.api.specs
 
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.stubs.TestDataFactory
+import uk.gov.hmrc.support.assertFieldExistsWithAValue
+import uk.gov.hmrc.stubs.{ApiResponse, TestDataFactory}
+
 import java.util.UUID
 
 class RegisterBusinessSpec extends BaseSpec {
@@ -70,8 +72,10 @@ class RegisterBusinessSpec extends BaseSpec {
       "return a business entity for a valid ID" in {
         val validUUID = UUID.randomUUID()
         whenReady(request.get(validUUID.toString)) { response =>
+          assertFieldExistsWithAValue(response, "crn")
+          assertFieldExistsWithAValue(response, "utr")
+          assertFieldExistsWithAValue(response, "name")
           response.body must include(validUUID.toString)
-          response.body must include("Mapple myPhones Ltd")
           response.statusCode mustBe 200
         }
       }

@@ -18,7 +18,7 @@ package uk.gov.hmrc.stubs.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class TaxRegime(
+final case class TaxRegime(
   bankLevy: Boolean = false,
   corporationTax: Boolean = false,
   customsDuties: Boolean = false,

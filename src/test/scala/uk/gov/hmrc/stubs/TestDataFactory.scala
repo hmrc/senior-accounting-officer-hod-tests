@@ -18,7 +18,7 @@ package uk.gov.hmrc.stubs
 
 import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
 import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Certificate, Company, Contact, Notification, PastSeniorAccountingOfficer, SeniorAccountingOfficer, Submission, TaxRegime}
-
+import com.github.javafaker.Faker
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -26,26 +26,18 @@ import scala.util.Random
 
 object TestDataFactory {
 
-  private object Defaults {
-    val testCompanyOneName = "Mapple myPhones Ltd"
-    val testCompanyTwoName = "Wiperosoft Ltd"
-    val contactName        = "Jamaica John"
-    val contactRole        = "Officer"
-    val contactPhone       = "+44 20 7946 0958"
-    val testDomain         = "testCompany.com"
-    val saoFullName        = "Sir Counts A Lot"
-  }
+  private val faker = new Faker(new java.util.Locale("en-GB"))
 
   def validBusinessEntity(
     id: UUID = UUID.randomUUID(),
-    name: String = Defaults.testCompanyOneName,
+    companyName: String = faker.company.name(),
     crn: String = randomAlphanumericId(10),
     utr: Option[String] = Some(randomAlphanumericId(8))
   ): BusinessEntity = BusinessEntity(
     id = id,
     crn = crn,
     utr = utr,
-    name = name,
+    name = companyName,
     contacts = List(validContact()),
     submissions = Some(List(validSubmission())),
     createdAt = Instant.now()
@@ -60,7 +52,7 @@ object TestDataFactory {
   )
 
   def duplicateBusinessEntity(): BusinessEntity =
-    validBusinessEntity(name = "DuplicateCompany")
+    validBusinessEntity(companyName = "DuplicateCompany")
 
   def validNotification(): Notification = Notification(
     seniorAccountingOfficer = validSeniorAccountingOfficer(),
@@ -86,13 +78,13 @@ object TestDataFactory {
   )
 
   def validContact(
-    name: String = Defaults.contactName,
-    role: String = Defaults.contactRole
+    name: String = faker.name().fullName(),
+    role: String = faker.job().position()
   ): Contact = Contact(
     name = name,
     role = role,
     email = emailFor(name),
-    phone = Defaults.contactPhone,
+    phone = faker.phoneNumber().phoneNumber(),
     order = First
   )
 
@@ -134,8 +126,8 @@ object TestDataFactory {
   }
 
   def validCertificate(
-    submitter: String = Defaults.contactName,
-    authorisedSao: String = Defaults.saoFullName
+    submitter: String = faker.name().fullName(),
+    authorisedSao: String = faker.name.fullName()
   ): Certificate = Certificate(
     submissionBy = submitter,
     authorisingSeniorAccountingOfficer = authorisedSao,
@@ -143,13 +135,13 @@ object TestDataFactory {
   )
 
   def validCompanyNoQualifications(
-    name: String = Defaults.testCompanyOneName,
+    name: String = faker.company.name(),
     crn: String = randomAlphanumericId(10),
     utr: Option[String] = Some(randomAlphanumericId(8)),
     companyModel: String = "LTD",
     isQualified: Boolean = false,
     regimes: List[TaxRegime] = List(TaxRegime()),
-    notes: String = "Some random string thing!"
+    notes: String = Faker.instance().lorem().paragraph(3)
   ): Company = Company(
     companyName = name,
     companyRegistrationNumber = crn,
@@ -164,13 +156,13 @@ object TestDataFactory {
 
   def validCompanyWithQualifications(): Company =
     validCompanyNoQualifications(
-      name = Defaults.testCompanyTwoName,
+      name = faker.company.name(),
       isQualified = true,
       regimes = List(TaxRegime(vat = true, corporationTax = true, stampDutyLandTax = true)),
-      notes = "Wiprosoft has problems man!"
+      notes = Faker.instance().lorem().paragraph(2)
     )
 
-  private def emailFor(name: String) = s"${name.toLowerCase.replace(" ", ".")}@${Defaults.testDomain}"
+  private def emailFor(name: String) = s"${name.toLowerCase.replace(" ", ".")}@${faker.internet().domainName()}"
 
   private def oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS)
 

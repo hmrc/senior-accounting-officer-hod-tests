@@ -87,6 +87,8 @@ object ApiStubs {
 
   private def validateAndCallCertify(requestBody: Option[JsValue]): Future[ApiResponse] =
     requestBody match {
+      case None => badRequest("Request body is required")
+
       case Some(body) =>
         body
           .validate[Certificate]
