@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.stubs
 
-import uk.gov.hmrc.stubs.models.{BusinessEntity, Certificate}
+import uk.gov.hmrc.stubs.models.{BusinessEntity, Certificate, Notification}
 import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.Future
@@ -37,6 +37,7 @@ object ApiStubs {
   private val baseUrl           = "/senior-accounting-officer-hod"
   private val registrationPath  = s"$baseUrl/business-entity"
   private val certificationPath = s"$baseUrl/certification"
+  private val notificationPath  = s"$baseUrl/notification"
 
   def call(
     method: String,
@@ -48,6 +49,8 @@ object ApiStubs {
       case ("PUT", url) if url.equalsIgnoreCase(registrationPath) => validateAndCallRegister(body, contentType)
 
       case ("PUT", url) if url.equalsIgnoreCase(certificationPath) => validateAndCallCertify(body)
+
+      case ("PUT", url) if url.equalsIgnoreCase(notificationPath) => validateAndCallNotify(body, contentType)
 
       case ("GET", url) if url.startsWith(registrationPath) =>
         val id = url.replace(s"$registrationPath/", "")
@@ -106,6 +109,31 @@ object ApiStubs {
         val response                = ApiResponse(200, responseBody)
 
         Future.successful(response)
+    }
+
+  private def validateAndCallNotify(requestBody: Option[JsValue], contentType: String): Future[ApiResponse] = {
+    if (contentType != "application/json") return badRequest("Content-Type must be application/json")
+
+    requestBody match {
+      case None => badRequest("Request body is required")
+
+      case Some(body) =>
+        body
+          .validate[Notification]
+          .fold(
+            errors => badRequest("Invalid JSON format"),
+            notification => processNotification(notification)
+          )
+    }
+  }
+
+  private def processNotification(notification: Notification): Future[ApiResponse] =
+    notification.seniorAccountingOfficer.fullName match {
+
+      case _ =>
+        Future.successful(
+          ApiResponse(200, s"""{"message":"Notification complete"}""")
+        )
     }
 
   private def validateAndCallGetRequest(id: String): Future[ApiResponse] =

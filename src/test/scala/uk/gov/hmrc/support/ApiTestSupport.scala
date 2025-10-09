@@ -18,7 +18,7 @@ package uk.gov.hmrc.support
 
 import org.scalatest.Assertions.{fail, succeed}
 import org.scalatest.concurrent.ScalaFutures
-import uk.gov.hmrc.stubs.{ApiResponse, ApiStubs, NotificationApiStub}
+import uk.gov.hmrc.stubs.{ApiResponse, ApiStubs}
 import uk.gov.hmrc.stubs.models.{BusinessEntity, Certificate, Notification}
 import play.api.libs.json.{JsArray, JsBoolean, JsDefined, JsNumber, JsObject, JsString, JsUndefined, Json}
 import org.scalatest.matchers.must.Matchers.mustBe
@@ -88,21 +88,21 @@ final case class Notify(baseUrl: String) {
   val path = s"$baseUrl/notification"
 
   def apply(notification: Notification): Future[ApiResponse] =
-    NotificationApiStub.call(
+    ApiStubs.call(
       method = "PUT",
       url = path,
       body = Some(Json.toJson(notification))
     )
 
   def putWithNoBody(): Future[ApiResponse] =
-    NotificationApiStub.call(
+    ApiStubs.call(
       method = "PUT",
       url = path,
       body = None
     )
 
   def putWithInvalidContentType(notification: Notification): Future[ApiResponse] =
-    NotificationApiStub.call(
+    ApiStubs.call(
       method = "PUT",
       url = path,
       body = Some(Json.toJson(notification)),
