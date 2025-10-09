@@ -148,7 +148,6 @@ object TestDataFactory {
     uniqueTaxpayerReference = utr,
     companyType = companyModel,
     financialYearEnd = Instant.now().plus(30, ChronoUnit.DAYS),
-    accountingPeriod = validAccountingPeriod().copy(dueDate = None),
     qualified = isQualified,
     affectedTaxRegimes = regimes,
     comment = notes
