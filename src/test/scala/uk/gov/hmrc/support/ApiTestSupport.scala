@@ -19,7 +19,7 @@ package uk.gov.hmrc.support
 import org.scalatest.Assertions.{fail, succeed}
 import org.scalatest.concurrent.ScalaFutures
 import uk.gov.hmrc.stubs.{ApiResponse, ApiStubs, NotificationApiStub}
-import uk.gov.hmrc.stubs.models.{BusinessEntity, Notification, Certificate}
+import uk.gov.hmrc.stubs.models.{BusinessEntity, Certificate, Notification}
 import play.api.libs.json.{JsArray, JsBoolean, JsDefined, JsNumber, JsObject, JsString, JsUndefined, Json}
 import org.scalatest.matchers.must.Matchers.mustBe
 
@@ -42,8 +42,9 @@ final case class RequestApi() {
 }
 
 final case class PutRequest(baseUrl: String) {
-  def register: Register = Register(baseUrl)
-  def certify: Certify   = Certify(baseUrl)
+  def registrationApi: Register = Register(baseUrl)
+  def notifyApi: Notify         = Notify(baseUrl)
+  def certifyApi: Certify       = Certify(baseUrl)
 }
 
 final case class Register(baseUrl: String) {
@@ -83,6 +84,32 @@ final case class Certify(baseUrl: String) {
     )
 }
 
+final case class Notify(baseUrl: String) {
+  val path = s"$baseUrl/notification"
+
+  def apply(notification: Notification): Future[ApiResponse] =
+    NotificationApiStub.call(
+      method = "PUT",
+      url = path,
+      body = Some(Json.toJson(notification))
+    )
+
+  def putWithNoBody(): Future[ApiResponse] =
+    NotificationApiStub.call(
+      method = "PUT",
+      url = path,
+      body = None
+    )
+
+  def putWithInvalidContentType(notification: Notification): Future[ApiResponse] =
+    NotificationApiStub.call(
+      method = "PUT",
+      url = path,
+      body = Some(Json.toJson(notification)),
+      contentType = "text/plain"
+    )
+}
+
 def assertFieldExistsWithAValue(response: ApiResponse, fieldName: String) = {
   val jsLookup = Json.parse(response.body) \ fieldName
   jsLookup match {
@@ -97,31 +124,5 @@ def assertFieldExistsWithAValue(response: ApiResponse, fieldName: String) = {
       }
     case JsUndefined()      => fail(s"$fieldName is missing in the response!")
     case _                  => fail(s"Unexpected JsLookupResult for $fieldName")
-  }
-
-  object requestNotification {
-    private val baseUrl = "/senior-accounting-officer-hod/notification"
-
-    def put(notify: Notification): Future[ApiResponse] =
-      NotificationApiStub.call(
-        method = "PUT",
-        url = baseUrl,
-        body = Some(Json.toJson(notify))
-      )
-
-    def putWithNoBody(): Future[ApiResponse] =
-      NotificationApiStub.call(
-        method = "PUT",
-        url = baseUrl,
-        body = None
-      )
-
-    def putWithInvalidContentType(notify: Notification): Future[ApiResponse] =
-      NotificationApiStub.call(
-        method = "PUT",
-        url = baseUrl,
-        body = Some(Json.toJson(notify)),
-        contentType = "text/plain"
-      )
   }
 }

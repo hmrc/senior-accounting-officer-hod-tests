@@ -17,10 +17,6 @@
 package uk.gov.hmrc.stubs.models
 
 import play.api.libs.json.*
-import uk.gov.hmrc.stubs.enums.Progress
-
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 final case class SeniorAccountingOfficer(
   fullName: String,

@@ -25,7 +25,7 @@ class SubmitCertificateSpec extends BaseSpec {
     "when submitting a certification" must {
       "succeed with valid data" in {
         val certificate = TestDataFactory.validCertificate()
-        whenReady(request.put.certify(certificate)) { response =>
+        whenReady(request.put.certifyApi(certificate)) { response =>
           response.body must include("Certification complete")
           response.statusCode mustBe 200
         }

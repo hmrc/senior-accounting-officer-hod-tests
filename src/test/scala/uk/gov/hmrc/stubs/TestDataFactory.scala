@@ -56,25 +56,7 @@ object TestDataFactory {
 
   def validNotification(): Notification = Notification(
     seniorAccountingOfficer = validSeniorAccountingOfficer(),
-    companies = List(validCompany())
-  )
-
-  def validCompany(
-    name: String = Defaults.companyName,
-    crn: String = Defaults.crn,
-    utr: String = Defaults.utr,
-    companyType: String = Defaults.companyType,
-    fye: Instant = Instant.now().plus(200, ChronoUnit.DAYS),
-    qualified: Boolean = Defaults.qualified
-  ): Company = Company(
-    companyName = name,
-    companyRegistrationNumber = crn,
-    uniqueTaxpayerReference = Some(utr),
-    companyType = companyType,
-    financialYearEnd = fye,
-    pastSeniorAccountingOfficers = Some(List(validPastSeniorAccountingOfficer())),
-    qualified = qualified,
-    comments = Some("Test Company Comment")
+    companies = List(validCompanyNoQualifications())
   )
 
   def validContact(
@@ -86,29 +68,6 @@ object TestDataFactory {
     email = emailFor(name),
     phone = faker.phoneNumber().phoneNumber(),
     order = First
-  )
-
-  def validSeniorAccountingOfficer(
-    fullName: String = Defaults.contactName
-  ): SeniorAccountingOfficer = SeniorAccountingOfficer(
-    fullName = fullName,
-    email = emailFor(fullName),
-    accountingPeriod = validAccountingPeriod().copy(
-      startDate = oneYearAgo.plus(120, ChronoUnit.DAYS),
-      endDate = Instant.now(),
-      dueDate = None
-    )
-  )
-
-  def validPastSeniorAccountingOfficer(
-    fullName: String = Defaults.saoName
-  ): PastSeniorAccountingOfficer = PastSeniorAccountingOfficer(
-    fullName = fullName,
-    accountingPeriod = validAccountingPeriod().copy(
-      startDate = oneYearAgo,
-      endDate = oneYearAgo.plus(119, ChronoUnit.DAYS),
-      dueDate = None
-    )
   )
 
   def validSubmission(): Submission = Submission(
@@ -141,13 +100,14 @@ object TestDataFactory {
     companyModel: String = "LTD",
     isQualified: Boolean = false,
     regimes: List[TaxRegime] = List(TaxRegime()),
-    notes: String = Faker.instance().lorem().paragraph(3)
+    notes: Option[String] = Some(Faker.instance().lorem().paragraph(3))
   ): Company = Company(
     companyName = name,
     companyRegistrationNumber = crn,
     uniqueTaxpayerReference = utr,
     companyType = companyModel,
     financialYearEnd = Instant.now().plus(30, ChronoUnit.DAYS),
+    pastSeniorAccountingOfficers = Some(List(validPastSeniorAccountingOfficer())),
     qualified = isQualified,
     affectedTaxRegimes = regimes,
     comment = notes
@@ -158,8 +118,31 @@ object TestDataFactory {
       name = faker.company.name(),
       isQualified = true,
       regimes = List(TaxRegime(vat = true, corporationTax = true, stampDutyLandTax = true)),
-      notes = Faker.instance().lorem().paragraph(2)
+      notes = Some(Faker.instance().lorem().paragraph(2))
     )
+
+  def validSeniorAccountingOfficer(
+    fullName: String = faker.name().fullName()
+  ): SeniorAccountingOfficer = SeniorAccountingOfficer(
+    fullName = fullName,
+    email = emailFor(fullName),
+    accountingPeriod = validAccountingPeriod().copy(
+      startDate = oneYearAgo.plus(120, ChronoUnit.DAYS),
+      endDate = Instant.now(),
+      dueDate = None
+    )
+  )
+
+  def validPastSeniorAccountingOfficer(
+    fullName: String = faker.name().fullName()
+  ): PastSeniorAccountingOfficer = PastSeniorAccountingOfficer(
+    fullName = fullName,
+    accountingPeriod = validAccountingPeriod().copy(
+      startDate = oneYearAgo,
+      endDate = oneYearAgo.plus(119, ChronoUnit.DAYS),
+      dueDate = None
+    )
+  )
 
   private def emailFor(name: String) = s"${name.toLowerCase.replace(" ", ".")}@${faker.internet().domainName()}"
 
