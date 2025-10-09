@@ -16,72 +16,113 @@
 
 package uk.gov.hmrc.support
 
+import org.scalatest.Assertions.{fail, succeed}
 import org.scalatest.concurrent.ScalaFutures
-import uk.gov.hmrc.stubs.{ApiResponse, BusinessEntityApiStub, NotificationApiStub}
-import uk.gov.hmrc.stubs.models.{BusinessEntity, Notification}
-import play.api.libs.json.Json
+import uk.gov.hmrc.stubs.{ApiResponse, ApiStubs, NotificationApiStub}
+import uk.gov.hmrc.stubs.models.{BusinessEntity, Certificate, Notification}
+import play.api.libs.json.{JsArray, JsBoolean, JsDefined, JsNumber, JsObject, JsString, JsUndefined, Json}
+import org.scalatest.matchers.must.Matchers.mustBe
 
 import scala.concurrent.Future
 
 trait ApiTestSupport extends ScalaFutures {
+  val request: RequestApi = RequestApi()
+}
 
-  object request {
-    private val baseUrl = "/senior-accounting-officer-hod/business-entity"
+final case class RequestApi() {
+  private val baseUrl = "/senior-accounting-officer-hod"
 
-    def put(entity: BusinessEntity): Future[ApiResponse] =
-      BusinessEntityApiStub.call(
-        method = "PUT",
-        url = baseUrl,
-        body = Some(Json.toJson(entity))
-      )
+  def put: PutRequest = PutRequest(baseUrl)
 
-    def putWithNoBody(): Future[ApiResponse] =
-      BusinessEntityApiStub.call(
-        method = "PUT",
-        url = baseUrl,
-        body = None
-      )
+  def get(entityId: String): Future[ApiResponse] =
+    ApiStubs.call(
+      method = "GET",
+      url = s"$baseUrl/business-entity/$entityId"
+    )
+}
 
-    def putWithInvalidContentType(entity: BusinessEntity): Future[ApiResponse] =
-      BusinessEntityApiStub.call(
-        method = "PUT",
-        url = baseUrl,
-        body = Some(Json.toJson(entity)),
-        contentType = "text/plain"
-      )
+final case class PutRequest(baseUrl: String) {
+  def registrationApi: Register = Register(baseUrl)
+  def notifyApi: Notify         = Notify(baseUrl)
+  def certifyApi: Certify       = Certify(baseUrl)
+}
 
-    def get(entityId: String): Future[ApiResponse] =
-      BusinessEntityApiStub.call(
-        method = "GET",
-        url = s"$baseUrl/$entityId"
-      )
+final case class Register(baseUrl: String) {
+  val path: String = s"$baseUrl/business-entity"
 
-    def get(entityId: java.util.UUID): Future[ApiResponse] = get(entityId.toString)
-  }
+  def apply(entity: BusinessEntity): Future[ApiResponse] =
+    ApiStubs.call(
+      method = "PUT",
+      url = path,
+      body = Some(Json.toJson(entity))
+    )
 
-  object requestNotification {
-    private val baseUrl = "/senior-accounting-officer-hod/notification"
+  def withNoBody(): Future[ApiResponse] =
+    ApiStubs.call(
+      method = "PUT",
+      url = path,
+      body = None
+    )
 
-    def put(notify: Notification): Future[ApiResponse] =
-      NotificationApiStub.call(
-        method = "PUT",
-        url = baseUrl,
-        body = Some(Json.toJson(notify))
-      )
+  def withInvalidContentType(entity: BusinessEntity): Future[ApiResponse] =
+    ApiStubs.call(
+      method = "PUT",
+      url = path,
+      body = Some(Json.toJson(entity)),
+      contentType = "text/plain"
+    )
+}
 
-    def putWithNoBody(): Future[ApiResponse] =
-      NotificationApiStub.call(
-        method = "PUT",
-        url = baseUrl,
-        body = None
-      )
+final case class Certify(baseUrl: String) {
+  val path: String = s"$baseUrl/certification"
 
-    def putWithInvalidContentType(notify: Notification): Future[ApiResponse] =
-      NotificationApiStub.call(
-        method = "PUT",
-        url = baseUrl,
-        body = Some(Json.toJson(notify)),
-        contentType = "text/plain"
-      )
+  def apply(certificate: Certificate): Future[ApiResponse] =
+    ApiStubs.call(
+      method = "PUT",
+      url = path,
+      body = Some(Json.toJson(certificate))
+    )
+}
+
+final case class Notify(baseUrl: String) {
+  val path = s"$baseUrl/notification"
+
+  def apply(notification: Notification): Future[ApiResponse] =
+    NotificationApiStub.call(
+      method = "PUT",
+      url = path,
+      body = Some(Json.toJson(notification))
+    )
+
+  def putWithNoBody(): Future[ApiResponse] =
+    NotificationApiStub.call(
+      method = "PUT",
+      url = path,
+      body = None
+    )
+
+  def putWithInvalidContentType(notification: Notification): Future[ApiResponse] =
+    NotificationApiStub.call(
+      method = "PUT",
+      url = path,
+      body = Some(Json.toJson(notification)),
+      contentType = "text/plain"
+    )
+}
+
+def assertFieldExistsWithAValue(response: ApiResponse, fieldName: String) = {
+  val jsLookup = Json.parse(response.body) \ fieldName
+  jsLookup match {
+    case JsDefined(jsValue) =>
+      jsValue match {
+        case JsString(s)   => s.trim.nonEmpty mustBe true
+        case JsNumber(n)   => n != null mustBe true
+        case JsBoolean(_)  => succeed
+        case JsArray(arr)  => arr.nonEmpty mustBe true
+        case JsObject(obj) => obj.nonEmpty mustBe true
+        case _             => fail(s"$fieldName has unsupported type or is empty!")
+      }
+    case JsUndefined()      => fail(s"$fieldName is missing in the response!")
+    case _                  => fail(s"Unexpected JsLookupResult for $fieldName")
   }
 }

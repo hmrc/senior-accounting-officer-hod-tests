@@ -26,14 +26,14 @@ class SubmitNotificationSpec extends BaseSpec {
     "when submitting a notification" must {
       "succeed with valid data" in {
         val notification = TestDataFactory.validNotification()
-        whenReady(requestNotification.put(notification)) { response =>
+        whenReady(request.put.notifyApi(notification)) { response =>
           response.body must include("Notification complete")
           response.statusCode mustBe 200
         }
       }
 
       "require request body" in {
-        whenReady(requestNotification.putWithNoBody()) { response =>
+        whenReady(request.put.notifyApi.putWithNoBody()) { response =>
           response.body must include("Request body is required")
           response.statusCode mustBe 400
         }
@@ -41,7 +41,7 @@ class SubmitNotificationSpec extends BaseSpec {
 
       "require valid content type header" in {
         val notification = TestDataFactory.validNotification()
-        whenReady(requestNotification.putWithInvalidContentType(notification)) { response =>
+        whenReady(request.put.notifyApi.putWithInvalidContentType(notification)) { response =>
           response.body must include("Content-Type must be application/json")
           response.statusCode mustBe 400
         }

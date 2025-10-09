@@ -17,36 +17,27 @@
 package uk.gov.hmrc.stubs
 
 import uk.gov.hmrc.stubs.enums.ContactTypeOrder.First
-import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Company, Contact, Notification, PastSeniorAccountingOfficer, SeniorAccountingOfficer, Submission}
+import uk.gov.hmrc.stubs.models.{AccountingPeriod, BusinessEntity, Certificate, Company, Contact, Notification, PastSeniorAccountingOfficer, SeniorAccountingOfficer, Submission, TaxRegime}
+import com.github.javafaker.Faker
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import scala.util.Random
 
 object TestDataFactory {
 
-  private object Defaults {
-    val companyName  = "Valid Test Company Ltd"
-    val crn          = "12345678"
-    val utr          = "1234567890"
-    val contactName  = "Jamaica John"
-    val contactRole  = "Officer"
-    val contactPhone = "+44 20 1234 5678"
-    val testDomain   = "testCompany.com"
-    val qualified    = true
-    val companyType  = "LTD"
-    val saoName      = "Jacob Jacobson"
-  }
+  private val faker = new Faker(new java.util.Locale("en-GB"))
 
   def validBusinessEntity(
     id: UUID = UUID.randomUUID(),
-    name: String = Defaults.companyName,
-    crn: String = Defaults.crn,
-    utr: String = Defaults.utr
+    companyName: String = faker.company.name(),
+    crn: String = randomAlphanumericId(10),
+    utr: Option[String] = Some(randomAlphanumericId(8))
   ): BusinessEntity = BusinessEntity(
     id = id,
     crn = crn,
     utr = utr,
-    name = name,
+    name = companyName,
     contacts = List(validContact()),
     submissions = Some(List(validSubmission())),
     createdAt = Instant.now()
@@ -54,70 +45,29 @@ object TestDataFactory {
 
   def invalidBusinessEntity(): BusinessEntity = validBusinessEntity().copy(
     crn = "",
-    utr = "",
+    utr = None,
     name = "",
     contacts = List.empty,
     submissions = None
   )
 
   def duplicateBusinessEntity(): BusinessEntity =
-    validBusinessEntity().copy(name = "DuplicateCompany")
+    validBusinessEntity(companyName = "DuplicateCompany")
 
   def validNotification(): Notification = Notification(
     seniorAccountingOfficer = validSeniorAccountingOfficer(),
-    companies = List(validCompany())
-  )
-
-  def validCompany(
-    name: String = Defaults.companyName,
-    crn: String = Defaults.crn,
-    utr: String = Defaults.utr,
-    companyType: String = Defaults.companyType,
-    fye: Instant = Instant.now().plus(200, ChronoUnit.DAYS),
-    qualified: Boolean = Defaults.qualified
-  ): Company = Company(
-    companyName = name,
-    companyRegistrationNumber = crn,
-    uniqueTaxpayerReference = Some(utr),
-    companyType = companyType,
-    financialYearEnd = fye,
-    pastSeniorAccountingOfficers = Some(List(validPastSeniorAccountingOfficer())),
-    qualified = qualified,
-    comments = Some("Test Company Comment")
+    companies = List(validCompanyNoQualifications())
   )
 
   def validContact(
-    name: String = Defaults.contactName,
-    role: String = Defaults.contactRole
+    name: String = faker.name().fullName(),
+    role: String = faker.job().position()
   ): Contact = Contact(
     name = name,
     role = role,
     email = emailFor(name),
-    phone = Defaults.contactPhone,
+    phone = faker.phoneNumber().phoneNumber(),
     order = First
-  )
-
-  def validSeniorAccountingOfficer(
-    fullName: String = Defaults.contactName
-  ): SeniorAccountingOfficer = SeniorAccountingOfficer(
-    fullName = fullName,
-    email = emailFor(fullName),
-    accountingPeriod = validAccountingPeriod().copy(
-      startDate = oneYearAgo.plus(120, ChronoUnit.DAYS),
-      endDate = Instant.now(),
-      dueDate = None
-    )
-  )
-
-  def validPastSeniorAccountingOfficer(
-    fullName: String = Defaults.saoName
-  ): PastSeniorAccountingOfficer = PastSeniorAccountingOfficer(
-    fullName = fullName,
-    accountingPeriod = validAccountingPeriod().copy(
-      startDate = oneYearAgo,
-      endDate = oneYearAgo.plus(119, ChronoUnit.DAYS),
-      dueDate = None
-    )
   )
 
   def validSubmission(): Submission = Submission(
@@ -134,7 +84,69 @@ object TestDataFactory {
     )
   }
 
-  private def emailFor(name: String) = s"${name.toLowerCase.replace(" ", ".")}@${Defaults.testDomain}"
+  def validCertificate(
+    submitter: String = faker.name().fullName(),
+    authorisedSao: String = faker.name.fullName()
+  ): Certificate = Certificate(
+    submissionBy = submitter,
+    authorisingSeniorAccountingOfficer = authorisedSao,
+    companies = List(validCompanyNoQualifications(), validCompanyWithQualifications())
+  )
+
+  def validCompanyNoQualifications(
+    name: String = faker.company.name(),
+    crn: String = randomAlphanumericId(10),
+    utr: Option[String] = Some(randomAlphanumericId(8)),
+    companyModel: String = "LTD",
+    isQualified: Boolean = false,
+    regimes: List[TaxRegime] = List(TaxRegime()),
+    notes: Option[String] = Some(Faker.instance().lorem().paragraph(3))
+  ): Company = Company(
+    companyName = name,
+    companyRegistrationNumber = crn,
+    uniqueTaxpayerReference = utr,
+    companyType = companyModel,
+    financialYearEnd = Instant.now().plus(30, ChronoUnit.DAYS),
+    pastSeniorAccountingOfficers = Some(List(validPastSeniorAccountingOfficer())),
+    qualified = isQualified,
+    affectedTaxRegimes = regimes,
+    comment = notes
+  )
+
+  def validCompanyWithQualifications(): Company =
+    validCompanyNoQualifications(
+      name = faker.company.name(),
+      isQualified = true,
+      regimes = List(TaxRegime(vat = true, corporationTax = true, stampDutyLandTax = true)),
+      notes = Some(Faker.instance().lorem().paragraph(2))
+    )
+
+  def validSeniorAccountingOfficer(
+    fullName: String = faker.name().fullName()
+  ): SeniorAccountingOfficer = SeniorAccountingOfficer(
+    fullName = fullName,
+    email = emailFor(fullName),
+    accountingPeriod = validAccountingPeriod().copy(
+      startDate = oneYearAgo.plus(120, ChronoUnit.DAYS),
+      endDate = Instant.now(),
+      dueDate = None
+    )
+  )
+
+  def validPastSeniorAccountingOfficer(
+    fullName: String = faker.name().fullName()
+  ): PastSeniorAccountingOfficer = PastSeniorAccountingOfficer(
+    fullName = fullName,
+    accountingPeriod = validAccountingPeriod().copy(
+      startDate = oneYearAgo,
+      endDate = oneYearAgo.plus(119, ChronoUnit.DAYS),
+      dueDate = None
+    )
+  )
+
+  private def emailFor(name: String) = s"${name.toLowerCase.replace(" ", ".")}@${faker.internet().domainName()}"
 
   private def oneYearAgo = Instant.now().minus(365, ChronoUnit.DAYS)
+
+  def randomAlphanumericId(length: Int): String = Random.alphanumeric.take(length).mkString
 }

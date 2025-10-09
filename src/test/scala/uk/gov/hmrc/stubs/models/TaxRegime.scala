@@ -18,20 +18,19 @@ package uk.gov.hmrc.stubs.models
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.Instant
-
-final case class Company(
-  companyName: String,
-  companyRegistrationNumber: String,
-  uniqueTaxpayerReference: Option[String],
-  companyType: String,
-  financialYearEnd: Instant,
-  pastSeniorAccountingOfficers: Option[List[PastSeniorAccountingOfficer]] = None,
-  qualified: Boolean,
-  affectedTaxRegimes: List[TaxRegime],
-  comment: Option[String] = None
+final case class TaxRegime(
+  bankLevy: Boolean = false,
+  corporationTax: Boolean = false,
+  customsDuties: Boolean = false,
+  exciseDuties: Boolean = false,
+  payAsYouEarnRegulations: Boolean = false,
+  insurancePremiumTax: Boolean = false,
+  petroleumRevenueTax: Boolean = false,
+  stampDutyLandTax: Boolean = false,
+  stampDutyReserveTax: Boolean = false,
+  vat: Boolean = false
 )
 
-object Company {
-  implicit val format: OFormat[Company] = Json.format[Company]
+object TaxRegime {
+  implicit val format: OFormat[TaxRegime] = Json.format[TaxRegime]
 }

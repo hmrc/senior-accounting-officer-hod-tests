@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.stubs
 
-import uk.gov.hmrc.stubs.models.BusinessEntity
+import uk.gov.hmrc.stubs.models.{BusinessEntity, Certificate}
 import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.Future
@@ -32,9 +32,11 @@ import scala.util.{Failure, Success, Try}
 
 case class ApiResponse(statusCode: Int, body: String)
 
-object BusinessEntityApiStub {
+object ApiStubs {
 
-  private val basePath = "/senior-accounting-officer-hod/business-entity"
+  private val baseUrl           = "/senior-accounting-officer-hod"
+  private val registrationPath  = s"$baseUrl/business-entity"
+  private val certificationPath = s"$baseUrl/certification"
 
   def call(
     method: String,
@@ -43,15 +45,16 @@ object BusinessEntityApiStub {
     contentType: String = "application/json"
   ): Future[ApiResponse] =
     (method.toUpperCase, url) match {
-      case ("PUT", basePath) =>
-        validateAndCallPutRequest(body, contentType)
+      case ("PUT", url) if url.equalsIgnoreCase(registrationPath) => validateAndCallRegister(body, contentType)
 
-      case ("GET", path) if path.startsWith(s"$basePath/") =>
-        val id = path.replace(s"$basePath/", "")
+      case ("PUT", url) if url.equalsIgnoreCase(certificationPath) => validateAndCallCertify(body)
+
+      case ("GET", url) if url.startsWith(registrationPath) =>
+        val id = url.replace(s"$registrationPath/", "")
         validateAndCallGetRequest(id)
     }
 
-  private def validateAndCallPutRequest(requestBody: Option[JsValue], contentType: String): Future[ApiResponse] = {
+  private def validateAndCallRegister(requestBody: Option[JsValue], contentType: String): Future[ApiResponse] = {
     if (contentType != "application/json") return badRequest("Content-Type must be application/json")
 
     requestBody match {
@@ -80,6 +83,29 @@ object BusinessEntityApiStub {
         Future.successful(
           ApiResponse(200, s"""{"message":"Business entity updated successfully","id":"${businessEntity.id}"}""")
         )
+    }
+
+  private def validateAndCallCertify(requestBody: Option[JsValue]): Future[ApiResponse] =
+    requestBody match {
+      case None => badRequest("Request body is required")
+
+      case Some(body) =>
+        body
+          .validate[Certificate]
+          .fold(
+            errors => badRequest("Invalid JSON format"),
+            certificate => processCertificate(certificate)
+          )
+    }
+
+  private def processCertificate(certificate: Certificate): Future[ApiResponse] =
+    certificate match {
+      case _ =>
+        val certificationId: String = s"SAOCERT${TestDataFactory.randomAlphanumericId(8)}"
+        val responseBody            = s"""{"message":"Certification complete","certificateSafeId":"$certificationId"}"""
+        val response                = ApiResponse(200, responseBody)
+
+        Future.successful(response)
     }
 
   private def validateAndCallGetRequest(id: String): Future[ApiResponse] =
