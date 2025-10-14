@@ -76,11 +76,12 @@ final case class Register(baseUrl: String) {
 final case class Certify(baseUrl: String) {
   val path: String = s"$baseUrl/certification"
 
-  def apply(certificate: Certificate): Future[ApiResponse] =
+  def apply(certificate: Certificate, role: String): Future[ApiResponse] =
     ApiStubs.call(
       method = "PUT",
       url = path,
-      body = Some(Json.toJson(certificate))
+      body = Some(Json.toJson(certificate)),
+      basicAuth = role
     )
 }
 

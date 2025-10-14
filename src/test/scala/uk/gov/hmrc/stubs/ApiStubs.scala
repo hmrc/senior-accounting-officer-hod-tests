@@ -18,6 +18,8 @@ package uk.gov.hmrc.stubs
 
 import uk.gov.hmrc.stubs.models.{BusinessEntity, Certificate, Notification}
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.adt._
+import uk.gov.hmrc.adt.ResponseType._
 
 import scala.concurrent.Future
 import java.util.UUID
@@ -43,12 +45,13 @@ object ApiStubs {
     method: String,
     url: String,
     body: Option[JsValue] = None,
-    contentType: String = "application/json"
+    contentType: String = "application/json",
+    basicAuth: String = "Administrator"
   ): Future[ApiResponse] =
     (method.toUpperCase, url) match {
       case ("PUT", url) if url.equalsIgnoreCase(registrationPath) => validateAndCallRegister(body, contentType)
 
-      case ("PUT", url) if url.equalsIgnoreCase(certificationPath) => validateAndCallCertify(body)
+      case ("PUT", url) if url.equalsIgnoreCase(certificationPath) => validateAndCallCertify(body, basicAuth)
 
       case ("PUT", url) if url.equalsIgnoreCase(notificationPath) => validateAndCallNotify(body, contentType)
 
@@ -57,101 +60,96 @@ object ApiStubs {
         validateAndCallGetRequest(id)
     }
 
-  private def validateAndCallRegister(requestBody: Option[JsValue], contentType: String): Future[ApiResponse] = {
-    if (contentType != "application/json") return badRequest("Content-Type must be application/json")
+  private def validateAndCallRegister(requestBody: Option[JsValue], contentType: String): Future[ApiResponse] =
+    if (!contentType.equalsIgnoreCase("application/json")) {
+      responseState(BadRequest("Content-Type must be application/json"))
+    } else {
+      requestBody match {
+        case None => responseState(BadRequest("Request body is required"))
 
-    requestBody match {
-      case None => badRequest("Request body is required")
-
-      case Some(body) =>
-        body
-          .validate[BusinessEntity]
-          .fold(
-            errors => badRequest("Invalid JSON format"),
-            businessEntity => processEntity(businessEntity)
-          )
+        case Some(body) =>
+          body
+            .validate[BusinessEntity]
+            .fold(
+              errors => responseState(BadRequest("Invalid JSON format")),
+              businessEntity => processEntity(businessEntity)
+            )
+      }
     }
-  }
 
   private def processEntity(businessEntity: BusinessEntity): Future[ApiResponse] =
     businessEntity.name match {
-      case "" => badRequest("Invalid business entity data")
+      case "" => responseState(BadRequest("Invalid business entity data"))
 
       case "DuplicateCompany" =>
-        Future.successful(
-          ApiResponse(409, errorMessage("Business entity already exists"))
-        )
+        responseState(Conflict("Business entity already exists"))
 
       case _ =>
-        Future.successful(
-          ApiResponse(200, s"""{"message":"Business entity updated successfully","id":"${businessEntity.id}"}""")
-        )
+        responseState(BusinessEntityUpdated(businessEntity.id.toString))
     }
 
-  private def validateAndCallCertify(requestBody: Option[JsValue]): Future[ApiResponse] =
-    requestBody match {
-      case None => badRequest("Request body is required")
+  private def validateAndCallCertify(requestBody: Option[JsValue], role: String): Future[ApiResponse] =
+    if (!role.equalsIgnoreCase("Administrator")) {
+      responseState(Unauthorized)
+    } else {
+      requestBody match {
+        case None => responseState(BadRequest("Request body is required"))
 
-      case Some(body) =>
-        body
-          .validate[Certificate]
-          .fold(
-            errors => badRequest("Invalid JSON format"),
-            certificate => processCertificate(certificate)
-          )
+        case Some(body) =>
+          body
+            .validate[Certificate]
+            .fold(
+              errors => responseState(BadRequest("Invalid JSON format")),
+              certificate => processCertificate(certificate)
+            )
+      }
     }
 
   private def processCertificate(certificate: Certificate): Future[ApiResponse] =
-    certificate match {
-      case _ =>
-        val certificationId: String = s"SAOCERT${TestDataFactory.randomAlphanumericId(8)}"
-        val responseBody            = s"""{"message":"Certification complete","certificateSafeId":"$certificationId"}"""
-        val response                = ApiResponse(200, responseBody)
+    certificate.certificateId match {
+      case Some(existingId) =>
+        val certificationId = s"SAOCERT$existingId"
+        responseState(CertificateUpdated(certificationId))
 
-        Future.successful(response)
+      case None =>
+        val certificationId = s"SAOCERT${TestDataFactory.randomAlphanumericId(8)}"
+        responseState(CertificationComplete(certificationId))
     }
 
-  private def validateAndCallNotify(requestBody: Option[JsValue], contentType: String): Future[ApiResponse] = {
-    if (contentType != "application/json") return badRequest("Content-Type must be application/json")
+  private def validateAndCallNotify(requestBody: Option[JsValue], contentType: String): Future[ApiResponse] =
+    if (!contentType.equalsIgnoreCase("application/json")) {
+      responseState(BadRequest("Content-Type must be application/json"))
+    } else {
+      requestBody match {
+        case None => responseState(BadRequest("Request body is required"))
 
-    requestBody match {
-      case None => badRequest("Request body is required")
-
-      case Some(body) =>
-        body
-          .validate[Notification]
-          .fold(
-            errors => badRequest("Invalid JSON format"),
-            notification => processNotification(notification)
-          )
+        case Some(body) =>
+          body
+            .validate[Notification]
+            .fold(
+              errors => responseState(BadRequest("Invalid JSON format")),
+              notification => processNotification(notification)
+            )
+      }
     }
-  }
 
   private def processNotification(notification: Notification): Future[ApiResponse] =
     notification.seniorAccountingOfficer.fullName match {
-
       case _ =>
-        Future.successful(
-          ApiResponse(200, s"""{"message":"Notification complete"}""")
-        )
+        responseState(NotificationComplete)
     }
 
   private def validateAndCallGetRequest(id: String): Future[ApiResponse] =
     Try(UUID.fromString(id)) match {
       case Failure(_) =>
-        badRequest("Invalid UUID format")
+        responseState(BadRequest("Invalid UUID format"))
 
       case Success(_) if id == "00000000-0000-0000-0000-000000000000" =>
-        Future.successful(ApiResponse(404, errorMessage("Business entity not found")))
+        responseState(NotFound("Business entity not found"))
 
       case Success(uuid) =>
         val stubEntity = TestDataFactory.validBusinessEntity().copy(id = uuid)
         Future.successful(ApiResponse(200, Json.toJson(stubEntity).toString()))
     }
-
-  private def badRequest(message: String): Future[ApiResponse] =
-    Future.successful(ApiResponse(400, errorMessage(message)))
-
-  private def errorMessage(message: String): String = s"""{"error":"$message"}"""
 
 }

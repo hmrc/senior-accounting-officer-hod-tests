@@ -85,9 +85,11 @@ object TestDataFactory {
   }
 
   def validCertificate(
+    id: Option[String] = None,
     submitter: String = faker.name().fullName(),
     authorisedSao: String = faker.name.fullName()
   ): Certificate = Certificate(
+    certificateId = id,
     submissionBy = submitter,
     authorisingSeniorAccountingOfficer = authorisedSao,
     companies = List(validCompanyNoQualifications(), validCompanyWithQualifications())

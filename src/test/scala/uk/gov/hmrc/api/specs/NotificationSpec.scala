@@ -19,12 +19,12 @@ package uk.gov.hmrc.api.specs
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.stubs.TestDataFactory
 
-class SubmitNotificationSpec extends BaseSpec {
+class NotificationSpec extends BaseSpec {
 
-  "The notification API" must {
+  "On calling the notification API" when {
 
-    "when submitting a notification" must {
-      "succeed with valid data" in {
+    "submitting a notification, the request" must {
+      "succeed when the user provides valid data" in {
         val notification = TestDataFactory.validNotification()
         whenReady(request.put.notifyApi(notification)) { response =>
           response.body must include("Notification complete")
@@ -32,14 +32,14 @@ class SubmitNotificationSpec extends BaseSpec {
         }
       }
 
-      "require request body" in {
+      "fail if attempted without providing a request body" in {
         whenReady(request.put.notifyApi.putWithNoBody()) { response =>
           response.body must include("Request body is required")
           response.statusCode mustBe 400
         }
       }
 
-      "require valid content type header" in {
+      "fail if attempted with an invalid content-type header" in {
         val notification = TestDataFactory.validNotification()
         whenReady(request.put.notifyApi.putWithInvalidContentType(notification)) { response =>
           response.body must include("Content-Type must be application/json")
@@ -47,6 +47,5 @@ class SubmitNotificationSpec extends BaseSpec {
         }
       }
     }
-
   }
 }

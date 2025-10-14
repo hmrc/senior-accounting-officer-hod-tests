@@ -19,6 +19,7 @@ package uk.gov.hmrc.stubs.models
 import play.api.libs.json.{Json, OFormat}
 
 final case class Certificate(
+  certificateId: Option[String],
   submissionBy: String,
   authorisingSeniorAccountingOfficer: String,
   companies: List[Company]

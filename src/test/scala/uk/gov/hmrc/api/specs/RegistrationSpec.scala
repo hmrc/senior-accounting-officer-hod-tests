@@ -22,12 +22,12 @@ import uk.gov.hmrc.stubs.{ApiResponse, TestDataFactory}
 
 import java.util.UUID
 
-class RegisterBusinessSpec extends BaseSpec {
+class RegistrationSpec extends BaseSpec {
 
-  "The business entity registration API" must {
+  "On calling the registration API" when {
 
-    "when submitting a registration" must {
-      "succeed with valid data" in {
+    "submitting a business entity for registration, the request" must {
+      "succeed when valid data is provided" in {
         val businessEntity = TestDataFactory.validBusinessEntity()
         whenReady(request.put.registrationApi(businessEntity)) { response =>
           response.body must include("Business entity updated successfully")
@@ -35,7 +35,7 @@ class RegisterBusinessSpec extends BaseSpec {
         }
       }
 
-      "reject a duplicate registration" in {
+      "fail when the business entity is already registered" in {
         val businessEntity = TestDataFactory.duplicateBusinessEntity()
         whenReady(request.put.registrationApi(businessEntity)) { response =>
           response.body must include("Business entity already exists")
@@ -43,7 +43,7 @@ class RegisterBusinessSpec extends BaseSpec {
         }
       }
 
-      "reject invalid business entity data" in {
+      "fail when invalid business entity data is provided" in {
         val businessEntity = TestDataFactory.invalidBusinessEntity()
         whenReady(request.put.registrationApi(businessEntity)) { response =>
           response.body must include("Invalid business entity data")
@@ -51,14 +51,14 @@ class RegisterBusinessSpec extends BaseSpec {
         }
       }
 
-      "require request body" in {
+      "fail if attempted without providing a request body" in {
         whenReady(request.put.registrationApi.withNoBody()) { response =>
           response.body must include("Request body is required")
           response.statusCode mustBe 400
         }
       }
 
-      "require valid content type header" in {
+      "fail if attempted with an invalid content-type header" in {
         val businessEntity = TestDataFactory.validBusinessEntity()
         whenReady(request.put.registrationApi.withInvalidContentType(businessEntity)) { response =>
           response.body must include("Content-Type must be application/json")
@@ -67,9 +67,9 @@ class RegisterBusinessSpec extends BaseSpec {
       }
     }
 
-    "when retrieving a registration" must {
+    "retrieving a registration, the request" must {
 
-      "return a business entity for a valid ID" in {
+      "successfully return a business entity when a valid Id is provided" in {
         val validUUID = UUID.randomUUID()
         whenReady(request.get(validUUID.toString)) { response =>
           assertFieldExistsWithAValue(response, "crn")
@@ -80,7 +80,7 @@ class RegisterBusinessSpec extends BaseSpec {
         }
       }
 
-      "return 'not found' for missing entity" in {
+      "fail to return a business entity if the Id is valid but not present in the database" in {
         val nonExistentId = "00000000-0000-0000-0000-000000000000"
         whenReady(request.get(nonExistentId)) { response =>
           response.body must include("Business entity not found")
@@ -88,7 +88,7 @@ class RegisterBusinessSpec extends BaseSpec {
         }
       }
 
-      "reject invalid UUID format" in {
+      "fail if attempted with an invalid UUID" in {
         whenReady(request.get("not-a-uuid")) { response =>
           response.body must include("Invalid UUID format")
           response.statusCode mustBe 400
