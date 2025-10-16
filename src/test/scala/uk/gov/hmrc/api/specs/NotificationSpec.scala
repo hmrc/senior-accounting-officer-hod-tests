@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.api.specs
 
-import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.stubs.TestDataFactory
+import uk.gov.hmrc.support.assertFieldExistsWithAValue
 
 class NotificationSpec extends BaseSpec {
 
@@ -27,6 +27,7 @@ class NotificationSpec extends BaseSpec {
       "succeed when the user provides valid data" in {
         val notification = TestDataFactory.validNotification()
         whenReady(request.put.notifyApi(notification)) { response =>
+          assertFieldExistsWithAValue(response, "notificationReferenceId")
           response.body must include("Notification complete")
           response.statusCode mustBe 200
         }

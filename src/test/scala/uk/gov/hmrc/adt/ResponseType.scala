@@ -26,7 +26,7 @@ sealed trait ResponseType
 case class CertificateUpdated(id: String) extends ResponseType
 case class CertificationComplete(id: String) extends ResponseType
 case class BusinessEntityUpdated(id: String) extends ResponseType
-case object NotificationComplete extends ResponseType
+case class NotificationComplete(id: String) extends ResponseType
 
 // Failure responses
 case class BadRequest(message: String) extends ResponseType
@@ -46,8 +46,10 @@ object ResponseType {
       case BusinessEntityUpdated(id) =>
         Future.successful(ApiResponse(200, s"""{"message":"Business entity updated successfully","id":"$id"}"""))
 
-      case NotificationComplete =>
-        Future.successful(ApiResponse(200, s"""{"message":"Notification complete"}"""))
+      case NotificationComplete(id) =>
+        Future.successful(
+          ApiResponse(200, s"""{"message":"Notification complete", "notificationReferenceId": "$id"}""")
+        )
 
       case BadRequest(message) =>
         Future.successful(ApiResponse(400, s"""{"error":"$message"}"""))
