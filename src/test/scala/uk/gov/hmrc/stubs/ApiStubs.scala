@@ -136,7 +136,8 @@ object ApiStubs {
   private def processNotification(notification: Notification): Future[ApiResponse] =
     notification.seniorAccountingOfficer.fullName match {
       case _ =>
-        responseState(NotificationComplete)
+        val notificationId = s"SAONOT${TestDataFactory.randomAlphanumericId(8)}"
+        responseState(NotificationComplete(notificationId))
     }
 
   private def validateAndCallGetRequest(id: String): Future[ApiResponse] =
