@@ -54,7 +54,10 @@ object TestDataFactory {
   def duplicateBusinessEntity(): BusinessEntity =
     validBusinessEntity(companyName = "DuplicateCompany")
 
-  def validNotification(): Notification = Notification(
+  def validNotification(
+    id: Option[String] = None
+  ): Notification = Notification(
+    notificationId = id,
     seniorAccountingOfficer = validSeniorAccountingOfficer(),
     companies = List(validCompanyNoQualifications())
   )
